@@ -1,0 +1,55 @@
+{
+  "name": "ts-typed-events",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jacob Fischer",
+    "email": "jacob.t.fischer@gmail.com",
+    "url": ""
+  },
+  "description": "A simple TypeScript module intended to replace EventEmitters with strongly typed events",
+  "homepage": "https://jacobfischer.github.io/ts-typed-events/",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/JacobFischer/ts-typed-events"
+  },
+  "bugs": {
+    "url": "https://github.com/siggame/JacobFischer/ts-typed-events"
+  },
+  "main": "./js/event.js",
+  "types": "./js/event.d.ts",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/chai": "^4.0.4",
+    "@types/mocha": "^2.2.43",
+    "chai": "^4.1.2",
+    "mocha": "^3.5.3",
+    "rimraf": "^2.6.2",
+    "tslint": "^5.7.0",
+    "tslint-eslint-rules": "^4.1.1",
+    "typedoc": "^0.8.0",
+    "typescript": "^2.5.2"
+  },
+  "engines": {
+    "node": "8.5.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "npm run ",
+    "clean:docs": "rimraf docs/",
+    "clean:js": "rimraf js/",
+    "docs": "typedoc --mode file --out docs/ --exclude test/* --includes src/",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "fix": "tslint -c tslint.json 'src/**/*.ts' --fix --force",
+    "test": "npm run build && mocha js/test --reporter spec"
+  },
+  "keywords": [
+    "event",
+    "events",
+    "ts",
+    "TypeScript",
+    "events",
+    "typing"
+  ]
+}

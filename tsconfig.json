@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "target": "es2015",
+        "module": "commonjs",
+
+        "strict": true,
+        "declaration": true,
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "noUnusedLocals": true,
+        "allowSyntheticDefaultImports": true,
+
+        "outDir": "js",
+        "baseUrl": "./"
+    },
+    "include": [
+        "node_modules/@types/**/*.d.ts",
+        "src/**/*.ts",
+        "src/**/*.d.ts",
+        "test/**/*.ts",
+        "test/**/*.d.ts"
+    ]
+}

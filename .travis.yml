@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+  - "8.5.0"
+
+script:
+  # run units tests
+  - npm test
+
+before_deploy:
+  # generate the docs files
+  - npm run docs
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: docs/
+  github_token: $GH_TOKEN
+  on:
+    branch: master
