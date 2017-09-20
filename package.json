@@ -4,7 +4,7 @@
   "author": {
     "name": "Jacob Fischer",
     "email": "jacob.t.fischer@gmail.com",
-    "url": ""
+    "url": "https://github.com/JacobFischer"
   },
   "description": "A simple TypeScript module intended to replace EventEmitters with strongly typed events",
   "homepage": "https://jacobfischer.github.io/ts-typed-events/",
@@ -14,7 +14,7 @@
     "url": "git://github.com/JacobFischer/ts-typed-events"
   },
   "bugs": {
-    "url": "https://github.com/siggame/JacobFischer/ts-typed-events"
+    "url": "https://github.com/JacobFischer/ts-typed-events/issues"
   },
   "main": "./js/event.js",
   "types": "./js/event.d.ts",
@@ -36,7 +36,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "clean": "npm run ",
+    "clean": "npm run clean:js && npm run clean:docs",
     "clean:docs": "rimraf docs/",
     "clean:js": "rimraf js/",
     "docs": "typedoc --mode file --out docs/ --exclude test/* --includes src/",

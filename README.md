@@ -152,4 +152,4 @@ All the functions are documented clearly using jsdoc style comments, so your
 favorite IDE should pick up the documentation cleanly.
 
 However, if you prefer external docs, they are available online here:
-https://github.com/siggame/JacobFischer/ts-typed-events
+https://github.com/JacobFischer/ts-typed-events
