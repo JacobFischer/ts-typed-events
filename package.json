@@ -16,8 +16,8 @@
   "bugs": {
     "url": "https://github.com/JacobFischer/ts-typed-events/issues"
   },
-  "main": "./js/event.js",
-  "types": "./js/event.d.ts",
+  "main": "./js/src/event.js",
+  "types": "./js/src/event.d.ts",
   "dependencies": {},
   "devDependencies": {
     "@types/chai": "^4.0.4",
