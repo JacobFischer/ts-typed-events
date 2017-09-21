@@ -117,7 +117,7 @@ class Pug extends Dog {
     }
 }
 
-const pug = new pug();
+const pug = new Pug();
 
 pug.events.called.once(console.log);
 pug.callIt("good boy"); // this still works from the super's events!
@@ -152,4 +152,4 @@ All the functions are documented clearly using jsdoc style comments, so your
 favorite IDE should pick up the documentation cleanly.
 
 However, if you prefer external docs, they are available online here:
-https://github.com/JacobFischer/ts-typed-events
+https://jacobfischer.github.io/ts-typed-events/
