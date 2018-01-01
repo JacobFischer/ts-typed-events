@@ -12,12 +12,6 @@ interface IListener<T> {
     promise?: Promise<T>;
 }
 
-/** The basic interface for combined events */
-export interface IEvents {
-    /** lookup event by name */
-    [eventName: string]: Event<any>;
-}
-
 /** A typed event, given a type will emit values of that type to listeners */
 export class Event<T extends any = undefined> {
     /** All the current listeners for this event */
@@ -27,7 +21,7 @@ export class Event<T extends any = undefined> {
      * Attaches a listener to trigger on all emits for this event
      * @param callback the callback to invoke on all emits
      */
-    public on(callback: (data: T) => any): void {
+    public on(callback: (data: T) => void): void {
         this.listeners.push({
             once: false,
             callback,
@@ -40,7 +34,7 @@ export class Event<T extends any = undefined> {
      * @param callback the callback to invoke only the next time this event
      * emits, then that callback is removed from this event
      */
-    public once(callback: (arg: T) => any): void;
+    public once(callback: (arg: T) => void): void;
 
     /**
      * Attaches a listener to trigger on only the first emit for this event.
@@ -61,7 +55,7 @@ export class Event<T extends any = undefined> {
      * Otherwise returns a promise that resolves with the value the next time
      * this event is triggered
      */
-    public once(callback?: (arg: T) => any): void | Promise<T> {
+    public once(callback?: (arg: T) => void): void | Promise<T> {
         if (!callback) {
             // then they want us to return the promise
             const promise = new Promise<T>((resolve, reject) => {
@@ -85,10 +79,10 @@ export class Event<T extends any = undefined> {
      * Removes a callback from the listeners on this event, regardless of once vs on.
      *
      * Returns true if a callback was removed, false otherwise.
-     * @param callback the callback to remove
+     * @param callback The callback to remove
      * @returns true if a callback was removed, false otherwise
      */
-    public off(listener: ((arg: T) => any) | Promise<T>): boolean {
+    public off(listener: ((arg: T) => void) | Promise<T>): boolean {
         const originalLength = this.listeners.length;
         // remove all listeners that have the same callback as this one
         this.listeners = this.listeners.filter((l) => {
@@ -102,11 +96,11 @@ export class Event<T extends any = undefined> {
      * Removes ALL callbacks from this event, regardless of once vs on.
      *
      * Returns the number of listeners removed.
-     * @returns the number of listeners removed
+     * @returns The number of listeners removed
      */
     public offAll(): number {
         const originalLength = this.listeners.length;
-        this.listeners.length = 0;
+        this.listeners.length = 0; // empty our listener array
         return originalLength;
     }
 
@@ -114,7 +108,7 @@ export class Event<T extends any = undefined> {
      * Emits a value to all the listeners, triggering their callbacks.
      *
      * Returns true if the event had listeners, false otherwise.
-     * @param arg the argument to emit to all listeners as their argument.
+     * @param arg The argument to emit to all listeners as their argument.
      * @returns true if the event had listeners, false otherwise
      */
     public emit(arg: T): boolean {
@@ -128,52 +122,3 @@ export class Event<T extends any = undefined> {
         return hadListeners;
     }
 }
-
-/** A utility function that creates a grouping of events and can manipulate those events */
-export interface IEventsFunction {
-    /**
-     * Creates a handy interface object of event names for combining linked events.
-     *
-     * Returns  a the group object now frozen for easy TS lookups.
-     * @param group an object of events used to group the event by name
-     * @returns a the group object now frozen for easy TS lookups
-     */
-    <T>(group: T): Readonly<T & IEvents>;
-
-    /**
-     * Combines two events objects into one, while creating a TS interface for type checking.
-     *
-     * Returns a new frozen object that is the two lists combined, with B taking precedent over A for conflicts.
-     * @param eventsA the first object of events to combine with B
-     * @param eventsB the second object of events to combine with A
-     * @returns a new frozen object that is the two lists combined, with B taking precedent over A for conflicts
-     */
-    concat: <T extends IEvents, S extends IEvents>(eventsA: T, eventsB: S) => Readonly<T & S>;
-}
-
-/**
- * Creates a handy interface object of event names for combining linked events.
- *
- * Returns a frozen object of events for easy grouping.
- * @param group an object of events used to group the event by name
- * @returns a frozen object of events for easy grouping
- */
-export const events: IEventsFunction = (function groupEvents<T>(group: T): Readonly<T> {
-    return Object.freeze(group);
-}) as any; // any because it lacks the contact function below,
-           // and there is no easy way in TS to hook that up right now
-
-/**
- * Combines two events objects into one, while creating a TS interface for type checking.
- *
- * Returns a frozen object that is the two lists combined, with B taking precedent over A for conflicts
- * @param eventsA the first object of events to combine with B
- * @param eventsB the second object of events to combine with A
- * @returns a frozen object that is the two lists combined, with B taking precedent over A for conflicts
- */
-events.concat = <T extends IEvents, S extends IEvents>(eventsA: T, eventsB: S): Readonly<T & S> => {
-    return Object.freeze(Object.assign({}, eventsA, eventsB)) as any;
-};
-
-/** old style exports for those using them */
-module.exports = {Event, events};

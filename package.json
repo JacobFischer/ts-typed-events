@@ -1,6 +1,6 @@
 {
   "name": "ts-typed-events",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "Jacob Fischer",
     "email": "jacob.t.fischer@gmail.com",
@@ -16,8 +16,8 @@
   "bugs": {
     "url": "https://github.com/JacobFischer/ts-typed-events/issues"
   },
-  "main": "./js/src/event.js",
-  "types": "./js/src/event.d.ts",
+  "main": "./js/src/index.js",
+  "types": "./js/src/index.d.ts",
   "dependencies": {},
   "devDependencies": {
     "@types/chai": "^4.0.4",
@@ -25,13 +25,11 @@
     "chai": "^4.1.2",
     "mocha": "^3.5.3",
     "rimraf": "^2.6.2",
+    "shx": "^0.2.2",
     "tslint": "^5.7.0",
     "tslint-eslint-rules": "^4.1.1",
     "typedoc": "^0.8.0",
     "typescript": "^2.5.2"
-  },
-  "engines": {
-    "node": ">= 8.5.0"
   },
   "scripts": {
     "build": "tsc",
@@ -40,9 +38,11 @@
     "clean:docs": "rimraf docs/",
     "clean:js": "rimraf js/",
     "docs": "typedoc --mode file --out docs/ --exclude test/* --includes src/",
+    "docs:predeploy": "shx touch docs/.nojekyll",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "fix": "tslint -c tslint.json 'src/**/*.ts' --fix --force",
-    "test": "npm run build && mocha js/test --reporter spec"
+    "test": "npm run build && npm run test:nobuild",
+    "test:nobuild": "mocha js/test --reporter spec"
   },
   "keywords": [
     "event",

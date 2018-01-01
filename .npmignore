@@ -1,0 +1,10 @@
+tsconfig.json
+tslint.json
+.travis.yml
+src/
+docs/
+test/
+.npmignore
+
+// npm pack
+ts-typed-events-*.tgz

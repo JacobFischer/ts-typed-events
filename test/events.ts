@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { Event, events } from "../src/event";
+import { Event, events } from "../src";
 
 describe("events", () => {
     it("should exist", async () => {
@@ -60,5 +60,29 @@ describe("events", () => {
 
         expect(combined).to.have.property("gamma");
         expect(combined.delta).to.be.an.instanceOf(Event);
+    });
+
+    it("should have offAll", async () => {
+        expect(events).to.have.property("offAll");
+        expect(events.offAll).to.be.a("function");
+    });
+
+    it("should be able to remove all listeners from a group of events", async () => {
+        const group = events({
+            alpha: new Event(),
+            beta: new Event(),
+        });
+
+        let callbackHit = false;
+        group.alpha.on(() => callbackHit = true);
+        group.beta.on(() => callbackHit = true);
+
+        events.offAll(group);
+
+        expect(group.alpha.emit(undefined)).to.be.false;
+        expect(callbackHit).to.be.false;
+
+        expect(group.beta.emit(undefined)).to.be.false;
+        expect(callbackHit).to.be.false;
     });
 });

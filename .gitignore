@@ -57,6 +57,7 @@ typings/
 # dotenv environment variables file
 .env
 
-# build artifacts files
+# build artifact files
 js/
 docs/
+ts-typed-events-*.tgz

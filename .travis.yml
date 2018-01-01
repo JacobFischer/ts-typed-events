@@ -1,19 +1,41 @@
-language: node_js
-node_js:
-  - "8.5.0"
+language: nodejs
+
+before_script:
+  - npm run build
 
 script:
-  # run units tests
-  - npm test
+  - npm run lint
+  - npm run test:nobuild
+
+after_success:
+  - npm run docs
+  - npm pack
+
 
 before_deploy:
   # generate the docs files
-  - npm run docs
+  - npm run docs:predeploy
+
 
 deploy:
-  provider: pages
-  skip_cleanup: true
-  local_dir: docs/
-  github_token: $GH_TOKEN
-  on:
-    branch: master
+  - provider: pages
+    skip_cleanup: true
+    local_dir: docs/
+    github_token: $GITHUB_TOKEN
+    on:
+      tags: true
+
+  - provider: releases
+    api_key: $GITHUB_TOKEN
+    file_glob: true
+    file: "ts-typed-events-*.tgz"
+    skip_cleanup: true
+    on:
+      tags: true
+
+  - provider: npm
+    skip_cleanup: true
+    email: "jacob.t.fischer@gmail.com"
+    api_key: $NPM_TOKEN
+    on:
+      tags: true

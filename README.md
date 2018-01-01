@@ -8,8 +8,8 @@ work with _in TypeScript_.
 
 ## Purpose
 
-Using Node's [EventEmitter](https://nodejs.org/api/events.html) class is nice,
-it's a useful software engineering paradigm; however in TypeScript you loose out
+Using Node's [EventEmitter](https://nodejs.org/api/events.html) class is nice;
+it's a useful software engineering paradigm. However in TypeScript you loose out
 on TypeScript's robust type checking when publishing and subscribing to events.
 
 The aim of this is to leverage TypeScript's generic types to allow for compile-
@@ -40,16 +40,14 @@ event.emit("some string");
 ### Events without types (signals)
 
 ```ts
-const event = new Event();
+const signal = new EventSignal();
 
-event.on(() => {
+signal.on(() => {
     console.log("The event triggered!");
 });
 
-event.emit(undefined); // required for the ts compiler to be happy
+signal.emit();
 ```
-
-_strictly speaking the type is undefined_
 
 ### async/await usage
 
@@ -73,7 +71,7 @@ times.
 ```ts
 class Dog {
     public readonly events = events({
-        barked: new Event();
+        barked: new EventSignal();
         called: new Event<string>();
         didSomethingComplex: new Event<{a: string, b: number, c: boolean[]}>();
     });
@@ -96,8 +94,8 @@ const dog = new Dog();
 dog.events.called.once(console.log);
 dog.callIt("good boy"); // now the called event should trigger and pipe the string to console.log
 
-dog.events.didSomethingComplex.on((obj) => {
-    console.log(obj.a, obj.b, obj.c);
+dog.events.didSomethingComplex.on((data) => {
+    console.log(data.a, data.b, data.c);
 });
 dog.doComplexTask(); // the above callback is hit!
 
@@ -109,11 +107,11 @@ dog.callIt("still a good boy"); // the first console.log callback is not fired, 
 ```ts
 class Pug extends Dog {
     public readonly events = events.concat(super.events, {
-        snort: new Event();
+        snort: new EventSignal();
     });
 
-    public snort(): void {
-        this.events.snort.emit(undefined);
+    public makeSnort(): void {
+        this.events.snort.emit();
     }
 }
 
@@ -123,9 +121,9 @@ pug.events.called.once(console.log);
 pug.callIt("good boy"); // this still works from the super's events!
 
 pug.events.snort.on(() => {
-    console.log("this pug snorted, cut little guy");
+    console.log("this pug snorted, cute little guy");
 });
-pug.snort();
+pug.makeSnort();
 ```
 
 
@@ -144,7 +142,8 @@ event.off(callback);
 
 This library leverages TypeScript's interfaces and generics very heavily to do
 type checking at every point. If you plan to use this with regular JavaScript
-most of this library's features are lost to you.
+most of this library's features are lost to you, so you'd probably be best off
+sticking to the built-in EventEmitter class.
 
 ## Docs
 

@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { Event } from "../src/event";
+import { Event, Signal } from "../src/";
 
 describe("Event", () => {
     it("should exist", async () => {
@@ -129,5 +129,15 @@ describe("Event", () => {
         }
 
         expect(event.offAll()).to.equal(LISTENERS);
+    });
+
+    it("should allow signaled events", async () => {
+        const signal = new Signal();
+
+        signal.on((arg) => {
+            expect(arg).is.undefined;
+        });
+
+        expect(signal.emit()).is.true; // emit with no data because this is a signal
     });
 });
