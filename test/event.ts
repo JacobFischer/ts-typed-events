@@ -38,7 +38,7 @@ describe("Event", () => {
         expect(event.emit(stringValue)).is.true;
     });
 
-    it("should should emit multiple times with on", async () => {
+    it("should emit multiple times with on", async () => {
         let i = 0;
         const event = new Event<number>();
 
@@ -57,7 +57,7 @@ describe("Event", () => {
         expect(emits).to.equal(TIMES);
     });
 
-    it("should should only emit once via once", async () => {
+    it("should only emit once via once", async () => {
         let i = 0;
         const event = new Event<number>();
 
@@ -83,12 +83,12 @@ describe("Event", () => {
         expect(emits).to.equal(1);
     });
 
-    it("should should only returns a promise with once", async () => {
+    it("should only returns a promise with once", async () => {
         const event = new Event();
         expect(event.once()).to.be.an.instanceOf(Promise);
     });
 
-    it("should with with async syntax", async () => {
+    it("should emit to async callbacks once", async () => {
         const event = new Event<null>();
 
         setImmediate(() => {

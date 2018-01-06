@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2018-01-05
+### Changes
+- Update package dependencies to resolve marked v0.3.6 security vunerability
+- Correct the names of some tests with poor grammar/spelling
+
 ## [1.1.0] - 2017-12-31
 ### Added
 - This changelog to track changes easily
