@@ -11,8 +11,8 @@ describe("events", () => {
 
     it("should create an group of events", () => {
         const group = events({
-            alpha: new Event(),
-            beta: new Event(),
+            alpha: new Event<string>(),
+            beta: new Event<number>(),
             delta: new Event(),
         });
 
@@ -26,6 +26,21 @@ describe("events", () => {
 
         expect(group).toHaveProperty("delta");
         expect(group.delta).toBeInstanceOf(Event);
+    });
+
+    it("should emit seperately", () => {
+        const group = events({
+            first: new Event(),
+            second: new Event(),
+        });
+
+        const firstCallback = jest.fn();
+        group.first.on(firstCallback);
+        const secondCallback = jest.fn();
+
+        expect(group.first.emit()).toEqual(true);
+        expect(firstCallback).toBeCalled();
+        expect(secondCallback).not.toBeCalled();
     });
 
     it("should have concat", () => {
@@ -78,10 +93,10 @@ describe("events", () => {
 
         expect(events.offAll(group)).toBeUndefined();
 
-        expect(group.alpha.emit(undefined)).toEqual(false);
+        expect(group.alpha.emit()).toEqual(false);
         expect(callbackHit).toEqual(false);
 
-        expect(group.beta.emit(undefined)).toEqual(false);
+        expect(group.beta.emit()).toEqual(false);
         expect(callbackHit).toEqual(false);
     });
 });

@@ -15,8 +15,14 @@ interface Listener<T> {
     promise?: Promise<T>;
 }
 
-/** A typed event, given a type will emit values of that type to listeners. */
-export class Event<T = unknown> {
+type EmitFn<T> = T extends undefined ? () => boolean : (data: T) => boolean;
+
+/**
+ * A typed event, given a type will emit values of that type to listeners.
+ *
+ * @param data
+ */
+export class Event<T = undefined> {
     /** All the current listeners for this event. */
     private listeners: Array<Listener<T>> = [];
 
@@ -40,15 +46,15 @@ export class Event<T = unknown> {
      * @param callback - The callback to invoke only the next time this event
      * emits, then that callback is removed from this event.
      */
-    public once(callback: (arg: T) => void): void;
+    public once(callback: (data: T) => void): void;
 
     /**
      * Attaches a listener to trigger on only the first emit for this event.
      *
-     * Returns a promise that resolves with the arg the next time this event
+     * Returns a promise that resolves with the data the next time this event
      * is triggered (only once).
      *
-     * @returns A promise that resolves with the arg the next time this event
+     * @returns A promise that resolves with the data the next time this event
      * is triggered (only once).
      */
     public once(): Promise<T>;
@@ -65,7 +71,7 @@ export class Event<T = unknown> {
      * @returns Nothing if a callback is passed, otherwise a Promise that
      * should resolve once this Event emits.
      */
-    public once(callback?: (arg: T) => void): void | Promise<T> {
+    public once(callback?: (data: T) => void): void | Promise<T> {
         if (!callback) {
             // then they want us to return the promise
             const promise = new Promise<T>((resolve) => {
@@ -121,22 +127,18 @@ export class Event<T = unknown> {
         return originalLength;
     }
 
-    /**
-     * Emits a value to all the listeners, triggering their callbacks.
-     *
-     * Returns true if the event had listeners, false otherwise.
-     *
-     * @param arg - The argument to emit to all listeners as their argument.
-     * @returns True if the event had listeners, false otherwise.
-     */
-    public emit(arg: T): boolean {
+    public readonly emit: T extends undefined
+        ? () => boolean
+        : (data: T) => boolean = ((
+        data?: T,
+    ) /* undefined only valid for singals */ => {
         const hadListeners = this.listeners.length > 0;
         for (const listener of this.listeners) {
-            listener.callback(arg);
+            listener.callback(data as T);
         }
 
         // remove all listeners that only wanted to listen once
         this.listeners = this.listeners.filter((l) => !l.once);
         return hadListeners;
-    }
+    }) as T extends undefined ? () => boolean : (data: T) => boolean;
 }

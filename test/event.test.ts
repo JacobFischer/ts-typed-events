@@ -1,4 +1,4 @@
-import { Event, Signal } from "../src/";
+import { Event } from "../src/";
 
 describe("Event", () => {
     it("should exist", () => {
@@ -15,16 +15,19 @@ describe("Event", () => {
     });
 
     it("should emit to listeners", () => {
-        const event = new Event<true>();
-        event.on((arg) => {
-            expect(arg).toBe(true);
+        const VAL = Symbol("emitTest");
+        const event = new Event<typeof VAL>();
+        const fn = jest.fn((arg) => {
+            expect(arg).toBe(VAL);
         });
-        expect(event.emit(true)).toBe(true);
+        event.on(fn);
+        expect(event.emit(VAL)).toBe(true);
+        expect(fn).toBeCalled();
     });
 
     it("should return false with listeners", () => {
         const event = new Event();
-        expect(event.emit(undefined)).toBe(false);
+        expect(event.emit()).toBe(false);
     });
 
     it("should emit the correct type", () => {
@@ -87,13 +90,14 @@ describe("Event", () => {
     });
 
     it("should emit to callbacks once", async () => {
-        const event = new Event<null>();
+        const VAL = Symbol("onceTest");
+        const event = new Event<symbol>();
 
         setImmediate(() => {
-            event.emit(null);
+            event.emit(VAL);
         }, 10);
 
-        expect(await event.once()).toEqual(null);
+        expect(await event.once()).toEqual(VAL);
     });
 
     it("should be able to remove a listener", () => {
@@ -120,7 +124,7 @@ describe("Event", () => {
 
         const callback = jest.fn();
         promise.then(callback);
-        expect(callback).toBeCalledTimes(0);
+        expect(callback).not.toBeCalled();
 
         expect(event.off(promise)).toEqual(true);
 
@@ -145,8 +149,8 @@ describe("Event", () => {
         expect(event.offAll()).toEqual(LISTENERS);
     });
 
-    it("should allow signaled events", () => {
-        const signal = new Signal();
+    it("should allow events with no generic type (signals)", () => {
+        const signal = new Event();
 
         signal.on((arg) => {
             expect(arg).toBeUndefined();

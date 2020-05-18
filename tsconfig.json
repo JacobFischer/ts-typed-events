@@ -1,10 +1,11 @@
 {
     "compilerOptions": {
-        "target": "esnext",
+        "target": "ES3",
         "module": "commonjs",
-        "lib": ["esnext"],
+        "lib": [], // none
         "moduleResolution": "node",
         "outDir": "dist",
+        "declaration": true,
 
         "strict": true,
         "esModuleInterop": true,
@@ -12,5 +13,5 @@
     },
     "include": [
         "./src/",
-    ]
+    ],
 }

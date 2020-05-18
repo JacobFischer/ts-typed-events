@@ -1,8 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog]
+and this project adheres to [Semantic Versioning].
+
+## [2.0.0] - 2020-05-18
+### Changes
+- Rename interfaces `IEvents` and `IEventsFunction` to `Events` and `EventsFunction` respectively.
+- `Signal` was removed. Instead you can now use `Event` without a generic which is now functionally identical to the old Signal.
+- Requires TypeScript >= 3.0 for newer features in the included definition files.
+
+# Fixed
+- Source maps no longer points to missing files. Instead source maps are inlined in the source. Thanks [#6].
 
 ## [1.1.1] - 2018-01-05
 ### Changes
@@ -29,5 +38,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release of Event and events
 
+[Keep a Changelog]: http://keepachangelog.com/en/1.0.0/
+[Semantic Versioning]: http://semver.org/spec/v2.0.0.html
 [1.0.1]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v1.0.1
 [1.1.0]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v1.1.0
+[1.1.1]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v1.1.1
+[2.0.0]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v2.0.0
+[#6]: https://github.com/JacobFischer/ts-typed-events/issues/6

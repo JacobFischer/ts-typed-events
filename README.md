@@ -22,7 +22,7 @@ emitters.
 ### Importing
 
 ```ts
-import { Event, events, Signal } from "ts-typed-events";
+import { Event, events } from "ts-typed-events";
 ```
 
 ### Simple Usage
@@ -40,7 +40,7 @@ event.emit("some string"); // prints `hey we got the string: some string`
 ### Events without types (signals)
 
 ```ts
-const signal = new Signal();
+const signal = new Event();
 
 signal.on(() => {
     console.log("The event triggered!");
@@ -55,15 +55,7 @@ signal.emit();
 const event = new Event<number>();
 
 // emit the event in 1 second
-setTimeout(() => {
-    event.emit(1337);    /**
-     * Emits the event as a signal that the event occurred (with no data).
-     *
-     * Returns true if the event had listeners, false otherwise.
-     *
-     * @returns True if the event had listeners, false otherwise.
-     */
-}, 1000);
+setTimeout(() => event.emit(1337), 1000);
 
 const emitted = await event.once();
 console.log("1 sec later we got", emitted);
@@ -77,7 +69,7 @@ times.
 ```ts
 class Dog {
     public readonly events = events({
-        barked: new Signal();
+        barked: new Event();
         called: new Event<string>();
         didSomethingComplex: new Event<{a: string, b: number, c: boolean[]}>();
     });
@@ -113,7 +105,7 @@ dog.callIt("still a good boy"); // the first console.log callback is not fired, 
 ```ts
 class Pug extends Dog {
     public readonly events = events.concat(super.events, {
-        snort: new Signal();
+        snort: new Event();
     });
 
     public makeSnort(): void {
