@@ -56,7 +56,13 @@ const event = new Event<number>();
 
 // emit the event in 1 second
 setTimeout(() => {
-    event.emit(1337);
+    event.emit(1337);    /**
+     * Emits the event as a signal that the event occurred (with no data).
+     *
+     * Returns true if the event had listeners, false otherwise.
+     *
+     * @returns True if the event had listeners, false otherwise.
+     */
 }, 1000);
 
 const emitted = await event.once();
@@ -125,8 +131,6 @@ pug.events.snort.on(() => {
 });
 pug.makeSnort();
 ```
-
-
 
 ### Removing callbacks
 

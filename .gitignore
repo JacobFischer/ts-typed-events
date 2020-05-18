@@ -58,6 +58,6 @@ typings/
 .env
 
 # build artifact files
-js/
+dist/
 docs/
 ts-typed-events-*.tgz

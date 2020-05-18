@@ -1,24 +1,16 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "esnext",
         "module": "commonjs",
-        "lib": ["dom", "es5", "es2015.core", "es2015.promise"],
+        "lib": ["esnext"],
+        "moduleResolution": "node",
+        "outDir": "dist",
 
         "strict": true,
-        "declaration": true,
-        "noImplicitAny": true,
-        "sourceMap": true,
-        "noUnusedLocals": true,
-        "allowSyntheticDefaultImports": true,
-
-        "outDir": "js",
-        "baseUrl": "./"
+        "esModuleInterop": true,
+        "inlineSourceMap": true,
     },
     "include": [
-        "node_modules/@types/**/*.d.ts",
-        "src/**/*.ts",
-        "src/**/*.d.ts",
-        "test/**/*.ts",
-        "test/**/*.d.ts"
+        "./src/",
     ]
 }

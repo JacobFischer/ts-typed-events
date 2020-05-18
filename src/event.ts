@@ -1,25 +1,29 @@
-/** This is a very simple strongly typed event emitter class, see README.md for more details */
+/**
+ * This is a very simple strongly typed event emitter class, see README.md
+ * for more details.
+ */
 
-/** A simple container for all event listeners */
-interface IListener<T> {
-    /** Indicates if they should be removed after one emit */
+/** A simple container for all event listeners. */
+interface Listener<T> {
+    /** Indicates if they should be removed after one emit. */
     once: boolean;
 
-    /** The callback to invoke */
+    /** The callback to invoke. */
     callback: (args: T) => void;
 
-    /** The promise that will be resolved when the event is triggered */
+    /** The promise that will be resolved when the event is triggered. */
     promise?: Promise<T>;
 }
 
-/** A typed event, given a type will emit values of that type to listeners */
-export class Event<T extends any = undefined> {
-    /** All the current listeners for this event */
-    private listeners: Array<IListener<T>> = [];
+/** A typed event, given a type will emit values of that type to listeners. */
+export class Event<T = unknown> {
+    /** All the current listeners for this event. */
+    private listeners: Array<Listener<T>> = [];
 
     /**
-     * Attaches a listener to trigger on all emits for this event
-     * @param callback the callback to invoke on all emits
+     * Attaches a listener to trigger on all emits for this event.
+     *
+     * @param callback - The callback to invoke on all emits.
      */
     public on(callback: (data: T) => void): void {
         this.listeners.push({
@@ -30,9 +34,11 @@ export class Event<T extends any = undefined> {
 
     /**
      * Attaches a listener to trigger on only the first emit for this event.
-     * After that event is emitted this callback will automatically be removed.
-     * @param callback the callback to invoke only the next time this event
-     * emits, then that callback is removed from this event
+     * After that event is emitted this callback will automatically be
+     * removed.
+     *
+     * @param callback - The callback to invoke only the next time this event
+     * emits, then that callback is removed from this event.
      */
     public once(callback: (arg: T) => void): void;
 
@@ -41,8 +47,9 @@ export class Event<T extends any = undefined> {
      *
      * Returns a promise that resolves with the arg the next time this event
      * is triggered (only once).
-     * @returns a promise that resolves with the arg the next time this event
-     * is triggered (only once)
+     *
+     * @returns A promise that resolves with the arg the next time this event
+     * is triggered (only once).
      */
     public once(): Promise<T>;
 
@@ -50,20 +57,24 @@ export class Event<T extends any = undefined> {
      * Attaches a listener to trigger on only the first emit for this event.
      *
      * This version either takes a callback or returns a promise.
-     * @param callback optional callback, if specified invokes the callback
+     *
+     * @param callback - Optional callback, if specified invokes the callback
      * only once when the event is triggered, then removes it.
      * Otherwise returns a promise that resolves with the value the next time
-     * this event is triggered
+     * this event is triggered.
+     * @returns Nothing if a callback is passed, otherwise a Promise that
+     * should resolve once this Event emits.
      */
     public once(callback?: (arg: T) => void): void | Promise<T> {
         if (!callback) {
             // then they want us to return the promise
-            const promise = new Promise<T>((resolve, reject) => {
-                // this will invoke the version that has a callback, so resolve can be used as the callback
+            const promise = new Promise<T>((resolve) => {
+                // this will invoke the version that has a callback,
+                // so resolve can be used as the callback
                 this.once(resolve);
             });
-            // attach the promise we just made to the listener (it was pushed on
-            // the end via this.once() above)
+            // attach the promise we just made to the listener (it was pushed
+            // on the end via this.once() above)
             this.listeners[this.listeners.length - 1].promise = promise;
             return promise;
         }
@@ -76,17 +87,22 @@ export class Event<T extends any = undefined> {
     }
 
     /**
-     * Removes a callback from the listeners on this event, regardless of once vs on.
+     * Removes a callback from the listeners on this event, regardless of once
+     * vs on.
      *
      * Returns true if a callback was removed, false otherwise.
-     * @param callback The callback to remove
-     * @returns true if a callback was removed, false otherwise
+     *
+     * @param listener - The callback to remove.
+     * @returns True if a callback was removed, false otherwise.
      */
     public off(listener: ((arg: T) => void) | Promise<T>): boolean {
         const originalLength = this.listeners.length;
         // remove all listeners that have the same callback as this one
         this.listeners = this.listeners.filter((l) => {
-            return listener !== l.callback && (!l.promise || listener !== l.promise);
+            return (
+                listener !== l.callback &&
+                (!l.promise || listener !== l.promise)
+            );
         });
 
         return this.listeners.length !== originalLength;
@@ -96,7 +112,8 @@ export class Event<T extends any = undefined> {
      * Removes ALL callbacks from this event, regardless of once vs on.
      *
      * Returns the number of listeners removed.
-     * @returns The number of listeners removed
+     *
+     * @returns The number of listeners removed.
      */
     public offAll(): number {
         const originalLength = this.listeners.length;
@@ -108,8 +125,9 @@ export class Event<T extends any = undefined> {
      * Emits a value to all the listeners, triggering their callbacks.
      *
      * Returns true if the event had listeners, false otherwise.
-     * @param arg The argument to emit to all listeners as their argument.
-     * @returns true if the event had listeners, false otherwise
+     *
+     * @param arg - The argument to emit to all listeners as their argument.
+     * @returns True if the event had listeners, false otherwise.
      */
     public emit(arg: T): boolean {
         const hadListeners = this.listeners.length > 0;

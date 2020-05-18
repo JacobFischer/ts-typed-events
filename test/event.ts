@@ -1,44 +1,43 @@
-import { expect } from "chai";
 import { Event, Signal } from "../src/";
 
 describe("Event", () => {
-    it("should exist", async () => {
-        expect(Event).to.exist;
+    it("should exist", () => {
+        expect(Event).toBeTruthy();
     });
 
-    it("should construct", async () => {
-        expect(new Event()).to.be.an.instanceOf(Event);
+    it("should construct", () => {
+        expect(new Event()).toBeInstanceOf(Event);
     });
 
-    it("should add listeners", async () => {
+    it("should add listeners", () => {
         const event = new Event();
-        expect(event.on(() => true)).to.not.throw;
+        expect(event.on(() => true)).toBeUndefined();
     });
 
-    it("should emit to listeners", async () => {
+    it("should emit to listeners", () => {
         const event = new Event<true>();
         event.on((arg) => {
-            expect(arg).is.true;
+            expect(arg).toBe(true);
         });
-        expect(event.emit(true)).is.true;
+        expect(event.emit(true)).toBe(true);
     });
 
-    it("should return false with listeners", async () => {
+    it("should return false with listeners", () => {
         const event = new Event();
-        expect(event.emit(undefined)).is.false;
+        expect(event.emit(undefined)).toBe(false);
     });
 
-    it("should emit the correct type", async () => {
+    it("should emit the correct type", () => {
         const stringValue = "Some string to test with";
         const event = new Event<string>();
         event.on((arg) => {
-            expect(arg).is.equal(stringValue);
-            expect(arg).to.be.a("string");
+            expect(arg).toEqual(stringValue);
+            expect(typeof arg).toEqual("string");
         });
-        expect(event.emit(stringValue)).is.true;
+        expect(event.emit(stringValue)).toEqual(true);
     });
 
-    it("should emit multiple times with on", async () => {
+    it("should emit multiple times with on", () => {
         let i = 0;
         const event = new Event<number>();
 
@@ -46,18 +45,18 @@ describe("Event", () => {
         let emits = 0;
         event.on((arg) => {
             emits++;
-            expect(arg).is.equal(i);
-            expect(arg).to.be.a("number");
+            expect(typeof arg).toEqual("number");
+            expect(arg).toEqual(i);
         });
 
         for (i = 0; i < TIMES; i++) {
-            expect(event.emit(i)).is.true;
+            expect(event.emit(i)).toEqual(true);
         }
 
-        expect(emits).to.equal(TIMES);
+        expect(emits).toEqual(TIMES);
     });
 
-    it("should only emit once via once", async () => {
+    it("should only emit once via once", () => {
         let i = 0;
         const event = new Event<number>();
 
@@ -65,62 +64,77 @@ describe("Event", () => {
         let emits = 0;
         event.once((arg) => {
             emits++;
-            expect(arg).is.equal(i);
-            expect(arg).to.be.a("number");
+            expect(arg).toEqual(i);
+            expect(typeof arg).toEqual("number");
         });
 
         for (i = 0; i < TIMES; i++) {
             const returned = event.emit(i);
             if (i === 0) {
-                expect(returned).is.true;
-            }
-            else {
+                expect(returned).toEqual(true);
+            } else {
                 // the listener should be removed, and thus it should return false for no listeners
-                expect(returned).is.false;
+                expect(returned).toEqual(false);
             }
         }
 
-        expect(emits).to.equal(1);
+        expect(emits).toEqual(1);
     });
 
-    it("should only returns a promise with once", async () => {
+    it("should only returns a promise with once", () => {
         const event = new Event();
-        expect(event.once()).to.be.an.instanceOf(Promise);
+        expect(event.once()).toBeInstanceOf(Promise);
     });
 
-    it("should emit to async callbacks once", async () => {
+    it("should emit to callbacks once", async () => {
         const event = new Event<null>();
 
         setImmediate(() => {
             event.emit(null);
         }, 10);
 
-        expect(await event.once()).to.equal(null);
+        expect(await event.once()).toEqual(null);
     });
 
-    it("should be able to remove a listener", async () => {
+    it("should be able to remove a listener", () => {
         const NUM = 1337;
         const event = new Event<number>();
-        const callback = (arg: number) => {
-            expect(NUM).equals(NUM);
+        const callback = () => {
+            expect(NUM).toEqual(NUM);
         };
 
         event.on(callback);
-        expect(event.emit(NUM)).is.true;
+        expect(event.emit(NUM)).toEqual(true);
 
-        expect(event.off(callback)).is.true;
+        expect(event.off(callback)).toEqual(true);
 
         // now there should be no one to emit to
-        expect(event.emit(NUM)).is.false;
+        expect(event.emit(NUM)).toEqual(false);
     });
 
-    it("should tell when no listener is removed", async () => {
+    it("should be able to remove a listener promise", () => {
+        const NUM = 1337;
+        const event = new Event<number>();
+        const promise = event.once();
+        expect(promise).toBeInstanceOf(Promise);
+
+        const callback = jest.fn();
+        promise.then(callback);
+        expect(callback).toBeCalledTimes(0);
+
+        expect(event.off(promise)).toEqual(true);
+
+        // now there should be no one to emit to
+        expect(event.emit(NUM)).toEqual(false);
+    });
+
+    it("should tell when no listener is removed", () => {
         const event = new Event<true>();
 
-        expect(event.off(() => true)).to.be.false;
+        expect(event.off(() => null)).toEqual(false);
     });
 
-    it("should remove all listeners", async () => {
+    it("should remove all listeners", () => {
         const LISTENERS = 8;
         const event = new Event<true>();
 
@@ -128,16 +142,16 @@ describe("Event", () => {
             event.on(() => true);
         }
 
-        expect(event.offAll()).to.equal(LISTENERS);
+        expect(event.offAll()).toEqual(LISTENERS);
     });
 
-    it("should allow signaled events", async () => {
+    it("should allow signaled events", () => {
         const signal = new Signal();
 
         signal.on((arg) => {
-            expect(arg).is.undefined;
+            expect(arg).toBeUndefined();
         });
 
-        expect(signal.emit()).is.true; // emit with no data because this is a signal
+        expect(signal.emit()).toEqual(true); // emit with no data because this is a signal
     });
 });
