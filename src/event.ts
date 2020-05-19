@@ -15,13 +15,6 @@ interface Listener<T> {
     promise?: Promise<T>;
 }
 
-type EmitFn<T> = T extends undefined ? () => boolean : (data: T) => boolean;
-
-/**
- * A typed event, given a type will emit values of that type to listeners.
- *
- * @param data
- */
 export class Event<T = undefined> {
     /** All the current listeners for this event. */
     private listeners: Array<Listener<T>> = [];
@@ -127,6 +120,16 @@ export class Event<T = undefined> {
         return originalLength;
     }
 
+    /**
+     * Emits a value to all the listeners, triggering their callbacks.
+     * Returns true if the event had listeners emitted to,
+     * false otherwise.
+     *
+     * @param data - If the Event has a type, this is the data of that type
+     * to emit to all listeners. If no type (undefined) this argument should
+     * be omitted.
+     * @returns True if the event had listeners emitted to, false otherwise.
+     */
     public readonly emit: T extends undefined
         ? () => boolean
         : (data: T) => boolean = ((

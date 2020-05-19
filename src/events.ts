@@ -1,10 +1,9 @@
 import { Event } from "./event";
 
 /** The basic interface for combined events. */
-export interface Events {
-    /** Lookup event by name. */
-    [eventName: string]: Event | undefined;
-}
+export type Events<T extends {}> = {
+    [K in keyof T]: T[K] extends Event<infer P> ? T[K] : never;
+};
 
 /**
  * A utility function that creates a grouping of events and can manipulate
@@ -20,7 +19,7 @@ export interface EventsFunction {
      * @param group - An object of events used to group the event by name.
      * @returns A the group object now frozen for easy TS lookups.
      */
-    <T>(group: T): Readonly<T & Events>;
+    <T extends Events<T>>(group: T): Readonly<T>;
 
     /**
      * Combines two events objects into one, while creating a TS interface for
@@ -34,7 +33,7 @@ export interface EventsFunction {
      * @returns A new frozen object that is the two lists combined, with B
      * taking precedent over A for conflicts.
      */
-    concat: <T extends Events, S extends Events>(
+    concat: <T extends Events<T>, S extends Events<S>>(
         eventsA: T,
         eventsB: S,
     ) => Readonly<T & S>;
@@ -42,7 +41,7 @@ export interface EventsFunction {
     /**
      * Removes all event listeners from all events.
      */
-    offAll: <T extends Events>(events: T) => void;
+    offAll: <T extends Events<T>>(events: T) => void;
 }
 
 /**
@@ -54,14 +53,11 @@ export interface EventsFunction {
  * @param group - An object of events used to group the event by name.
  * @returns A frozen object of events for easy grouping.
  */
-export const events: EventsFunction = function groupEvents<T>(
-    group: T,
-): Readonly<T> {
+export const events: EventsFunction = function groupEvents<
+    T extends Events<T>
+>(group: T): Readonly<T> {
     return Object.freeze(group);
-} as any; // eslint-disable-line @typescript-eslint/no-explicit-any
-// any because it lacks the functions below at this moment,
-// so it does not properly implement the interface,
-// and there is no easy way in TS to hook that up right now
+};
 
 /**
  * Combines two events objects into one, while creating a TS interface for
@@ -75,25 +71,31 @@ export const events: EventsFunction = function groupEvents<T>(
  * @returns A frozen object that is the two lists combined, with B taking
  * precedent over A for conflicts.
  */
-events.concat = function eventsConcat<T extends Events, S extends Events>(
-    eventsA: T,
-    eventsB: S,
-): Readonly<T & S> {
+events.concat = function eventsConcat<
+    T extends Events<T>,
+    S extends Events<S>
+>(eventsA: T, eventsB: S): Readonly<T & S> {
     return Object.freeze({
-        ...(eventsA as object),
-        ...(eventsB as object),
-    }) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+        ...eventsA,
+        ...eventsB,
+    });
 };
 
 /**
  * Removes all event listeners from a group of events.
  *
- * @param group - An object of keys mapping to Event instances to remove all
+ * @param events - An object of keys mapping to Event instances to remove all
  * the listeners from.
  */
-events.offAll = function eventsOffAll<T extends Events>(group: T): void {
-    for (const key of Object.keys(group)) {
-        const event = group[key];
-        (event as Event).offAll(); // will exist because of Object.keys
+events.offAll = function eventsOffAll<T extends Events<T>>(events: T): void {
+    // Use for-in loop to preserve ES3 full backwards compatability.
+    // eslint-disable-next-line @typescript-eslint/no-for-in-array
+    for (const key in events) {
+        // Because the else condition should never happen
+        /* istanbul ignore else */
+        if (Object.prototype.hasOwnProperty.call(events, key)) {
+            const event = ((events as unknown) as { [k: string]: Event })[key];
+            event.offAll(); // will exist because of above check
+        }
     }
 };
