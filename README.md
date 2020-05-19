@@ -64,6 +64,18 @@ console.log("1 sec later we got", emitted);
 _Note_: async only works with `once`, not `on` as that can trigger multiple
 times.
 
+### Multiple callbacks
+
+```ts
+const event = new Event<"pizza" | "ice cream">();
+
+event.on((food) => console.log("I like", food));
+event.on((badFood) => console.log(badFood, "is bad for me!"));
+
+event.emit("pizza");
+// "I like pizza" and "pizza is bad for me!" are both printed to the console
+```
+
 ### Class with multiple events
 
 ```ts

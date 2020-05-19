@@ -25,6 +25,12 @@ describe("Event", () => {
         expect(fn).toBeCalled();
     });
 
+    it("should support union types", () => {
+        const VAL = "foo";
+        const event = new Event<"foo" | "bar">();
+        expect(event.emit(VAL)).toBe(false);
+    });
+
     it("should return false with listeners", () => {
         const event = new Event();
         expect(event.emit()).toBe(false);
@@ -45,18 +51,30 @@ describe("Event", () => {
         const event = new Event<number>();
 
         const TIMES = 20;
-        let emits = 0;
-        event.on((arg) => {
-            emits++;
+        const callback = jest.fn((arg) => {
             expect(typeof arg).toEqual("number");
             expect(arg).toEqual(i);
         });
+        event.on(callback);
 
         for (i = 0; i < TIMES; i++) {
             expect(event.emit(i)).toEqual(true);
         }
 
-        expect(emits).toEqual(TIMES);
+        expect(callback).toBeCalledTimes(TIMES);
+    });
+
+    it("should not mutate emitted values", () => {
+        const complex = {
+            foo: "bar",
+            baz: [1, 2, 3],
+        };
+
+        const event = new Event<typeof complex>();
+        event.on((obj) => {
+            expect(obj).toStrictEqual(complex);
+        });
+        event.emit(complex);
     });
 
     it("should only emit once via once", () => {
@@ -64,24 +82,25 @@ describe("Event", () => {
         const event = new Event<number>();
 
         const TIMES = 20;
-        let emits = 0;
-        event.once((arg) => {
-            emits++;
+        const callback = jest.fn((arg) => {
             expect(arg).toEqual(i);
             expect(typeof arg).toEqual("number");
         });
+
+        event.once(callback);
 
         for (i = 0; i < TIMES; i++) {
             const returned = event.emit(i);
             if (i === 0) {
                 expect(returned).toEqual(true);
             } else {
-                // the listener should be removed, and thus it should return false for no listeners
+                // the listener should be removed,
+                // and thus it should return false for no listeners
                 expect(returned).toEqual(false);
             }
         }
 
-        expect(emits).toEqual(1);
+        expect(callback).toBeCalledTimes(1);
     });
 
     it("should only returns a promise with once", () => {

@@ -20,8 +20,8 @@
   "types": "dist/index.d.ts",
   "devDependencies": {
     "@types/eslint": "6.8.1",
-    "@types/jest": "25.2.2",
-    "@typescript-eslint/eslint-plugin": "2.33.0",
+    "@types/jest": "25.2.3",
+    "@typescript-eslint/eslint-plugin": "2.34.0",
     "eslint": "7.0.0",
     "eslint-config-jacobfischer": "git://github.com/JacobFischer/eslint-config.git#100a1965c78f7f928204b1b5dc613f9ef1adb9f1",
     "eslint-config-jacobfischer-jest": "git://github.com/JacobFischer/eslint-config-jest.git#a00ba9efe989f30e990c74f115ff2762f66a4bff",
@@ -38,7 +38,7 @@
     "ts-jest": "26.0.0",
     "ts-node": "8.10.1",
     "typedoc": "0.17.7",
-    "typescript": "3.9.2"
+    "typescript": "3.9.3"
   },
   "scripts": {
     "build": "tsc",

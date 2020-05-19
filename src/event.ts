@@ -39,7 +39,7 @@ export class Event<T = undefined> {
      * @param callback - The callback to invoke only the next time this event
      * emits, then that callback is removed from this event.
      */
-    public once(callback: (data: T) => void): void;
+    public once(callback: (emitted: T) => void): void;
 
     /**
      * Attaches a listener to trigger on only the first emit for this event.
@@ -64,7 +64,7 @@ export class Event<T = undefined> {
      * @returns Nothing if a callback is passed, otherwise a Promise that
      * should resolve once this Event emits.
      */
-    public once(callback?: (data: T) => void): void | Promise<T> {
+    public once(callback?: (emitted: T) => void): void | Promise<T> {
         if (!callback) {
             // then they want us to return the promise
             const promise = new Promise<T>((resolve) => {
@@ -94,7 +94,7 @@ export class Event<T = undefined> {
      * @param listener - The callback to remove.
      * @returns True if a callback was removed, false otherwise.
      */
-    public off(listener: ((arg: T) => void) | Promise<T>): boolean {
+    public off(listener: ((emitted: T) => void) | Promise<T>): boolean {
         const originalLength = this.listeners.length;
         // remove all listeners that have the same callback as this one
         this.listeners = this.listeners.filter((l) => {
@@ -125,23 +125,23 @@ export class Event<T = undefined> {
      * Returns true if the event had listeners emitted to,
      * false otherwise.
      *
-     * @param data - If the Event has a type, this is the data of that type
-     * to emit to all listeners. If no type (undefined) this argument should
+     * @param emitting - If the Event has a type, this is the data of that type
+     * to emit to all listeners. If no type (never) this argument should
      * be omitted.
      * @returns True if the event had listeners emitted to, false otherwise.
      */
-    public readonly emit: T extends undefined
+    public readonly emit: [T] extends [undefined]
         ? () => boolean
-        : (data: T) => boolean = ((
-        data?: T,
+        : (emitting: T) => boolean = ((
+        emitting?: T,
     ) /* undefined only valid for singals */ => {
         const hadListeners = this.listeners.length > 0;
         for (const listener of this.listeners) {
-            listener.callback(data as T);
+            listener.callback(emitting as T);
         }
 
         // remove all listeners that only wanted to listen once
         this.listeners = this.listeners.filter((l) => !l.once);
         return hadListeners;
-    }) as T extends undefined ? () => boolean : (data: T) => boolean;
+    }) as [T] extends [undefined] ? () => boolean : (data: T) => boolean;
 }

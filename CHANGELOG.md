@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning].
 
 ## [2.0.0] - 2020-05-18
 ### Changes
-- Rename interfaces `IEvents` and `IEventsFunction` to `Events` and `EventsFunction` respectively.
-- `Signal` was removed. Instead you can now use `Event` without a generic which is now functionally identical to the old Signal.
+- Rename TypeScript interfaces `IEvents` and `IEventsFunction` to `Events` and `EventsFunction` respectively.
+- `Signal` class removed. Instead you can now use `Event` without a generic which is now functionally identical to the old `Signal`.
 - Requires TypeScript >= 3.0 for newer features in the included definition files.
 
 # Fixed
