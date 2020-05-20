@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning].
 - Requires TypeScript >= 3.0 for newer features in the included definition files.
 
 # Fixed
-- Source maps no longer points to missing files. Instead source maps are inlined in the source. Thanks [#6].
+- Source maps no longer point to missing files. Instead source maps are inlined in the source. Thanks [#6].
 
 ## [1.1.1] - 2018-01-05
 ### Changes
