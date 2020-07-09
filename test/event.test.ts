@@ -142,13 +142,14 @@ describe("Event", () => {
         expect(promise).toBeInstanceOf(Promise);
 
         const callback = jest.fn();
-        promise.then(callback);
+        void promise.then(callback);
         expect(callback).not.toBeCalled();
 
         expect(event.off(promise)).toEqual(true);
 
         // now there should be no one to emit to
         expect(event.emit(NUM)).toEqual(false);
+        expect(callback).not.toBeCalled();
     });
 
     it("should tell when no listener is removed", () => {

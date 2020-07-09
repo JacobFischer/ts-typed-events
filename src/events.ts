@@ -1,7 +1,7 @@
 import { Event } from "./event";
 
 /** The basic interface for combined events. */
-export type Events<T extends {}> = {
+export type Events<T extends Record<string, unknown>> = {
     [K in keyof T]: T[K] extends Event<infer P> ? T[K] : never;
 };
 
