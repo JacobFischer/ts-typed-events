@@ -1,7 +1,9 @@
 import { Event } from "./event";
 
 /** The basic interface for combined events. */
-export type Events<T extends Record<string, unknown>> = {
+// TODO: change `{}` to `Record<string, unknown>` on next major version release
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Events<T extends {}> = {
     [K in keyof T]: T[K] extends Event<infer P> ? T[K] : never;
 };
 
