@@ -22,7 +22,7 @@ emitters.
 ### Importing
 
 ```ts
-import { Event, events } from "ts-typed-events";
+import { Event } from "ts-typed-events";
 ```
 
 ### Simple Usage
@@ -46,7 +46,7 @@ signal.on(() => {
     console.log("The event triggered!");
 });
 
-signal.emit();
+signal.emit(); // prints: `The event triggered!`
 ```
 
 ### async/await usage
@@ -59,6 +59,7 @@ setTimeout(() => event.emit(1337), 1000);
 
 const emitted = await event.once();
 console.log("1 sec later we got", emitted);
+// printed: `1 sec later we got 1337`
 ```
 
 _Note_: async only works with `once`, not `on` as that can trigger multiple
@@ -73,77 +74,36 @@ event.on((food) => console.log("I like", food));
 event.on((badFood) => console.log(badFood, "is bad for me!"));
 
 event.emit("pizza");
-// "I like pizza" and "pizza is bad for me!" are both printed to the console
-```
-
-### Class with multiple events
-
-```ts
-class Dog {
-    public readonly events = events({
-        barked: new Event();
-        called: new Event<string>();
-        didSomethingComplex: new Event<{a: string, b: number, c: boolean[]}>();
-    });
-
-    public callIt(name: string): void {
-        this.events.called.emit(name);
-    }
-
-    public doComplexTask(): void {
-        this.events.didSomethingComplex.emit({
-            a: "some string",
-            b: 1,
-            c: [true, false, true, true],
-        });
-    }
-}
-
-const dog = new Dog();
-
-dog.events.called.once(console.log);
-dog.callIt("good boy"); // now the called event should trigger and pipe the string to console.log
-
-dog.events.didSomethingComplex.on((data) => {
-    console.log(data.a, data.b, data.c);
-});
-dog.doComplexTask(); // the above callback is hit!
-
-dog.callIt("still a good boy"); // the first console.log callback is not fired, because it was only fired `once`
-```
-
-### Class inheriting events
-
-```ts
-class Pug extends Dog {
-    public readonly events = events.concat(super.events, {
-        snort: new Event();
-    });
-
-    public makeSnort(): void {
-        this.events.snort.emit();
-    }
-}
-
-const pug = new Pug();
-
-pug.events.called.once(console.log);
-pug.callIt("good boy"); // this still works from the super's events!
-
-pug.events.snort.on(() => {
-    console.log("this pug snorted, cute little guy");
-});
-pug.makeSnort();
+// printed: `I like pizza` followed by `pizza is bad for me!`
 ```
 
 ### Removing callbacks
 
 ```ts
 const event = new Event();
-const callback = () => {};
+const callback = () => { throw new Error("I don't want to be called"); };
 
 event.on(callback);
 event.off(callback);
+
+event.emit(); // The callback was removed, so it does not get called
+```
+
+### Classes
+
+```ts
+class Dog {
+    eventBarked = new Event();
+
+    bark() {
+        this.eventBarked.emit();
+    }
+}
+
+const dog = new Dog();
+dog.eventBarked.on(() => console.log("The dog barked!"));
+dog.bark();
+// printed: `The dog barked!`;
 ```
 
 ## Other Notes

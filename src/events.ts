@@ -1,6 +1,10 @@
 import { Event } from "./event";
 
-/** The basic interface for combined events. */
+/**
+ * The basic interface for combined events.
+ *
+ * @deprecated - see https://github.com/JacobFischer/ts-typed-events/issues/8.
+ */
 // TODO: change `{}` to `Record<string, unknown>` on next major version release
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type Events<T extends {}> = {
@@ -90,7 +94,7 @@ events.concat = function eventsConcat<
  * the listeners from.
  */
 events.offAll = function eventsOffAll<T extends Events<T>>(events: T): void {
-    // Use for-in loop to preserve ES3 full backwards compatability.
+    // Use for-in loop to preserve ES3 full backwards compatibility.
     // eslint-disable-next-line @typescript-eslint/no-for-in-array
     for (const key in events) {
         // Because the else condition should never happen
