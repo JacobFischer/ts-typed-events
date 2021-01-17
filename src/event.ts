@@ -143,5 +143,5 @@ export class Event<T = undefined> {
         // remove all listeners that only wanted to listen once
         this.listeners = this.listeners.filter((l) => !l.once);
         return hadListeners;
-    }) as [T] extends [undefined] ? () => boolean : (data: T) => boolean;
+    }) as T extends undefined ? () => boolean : (data: T) => boolean;
 }
