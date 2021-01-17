@@ -134,7 +134,7 @@ export class Event<T = undefined> {
         ? (emitting: T) => boolean
         : () => boolean = ((
         emitting?: T,
-    ) /* undefined only valid for singals */ => {
+    ) /* undefined only valid for signals */ => {
         const hadListeners = this.listeners.length > 0;
         for (const listener of this.listeners) {
             listener.callback(emitting as T);
