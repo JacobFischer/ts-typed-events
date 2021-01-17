@@ -130,9 +130,9 @@ export class Event<T = undefined> {
      * be omitted.
      * @returns True if the event had listeners emitted to, false otherwise.
      */
-    public readonly emit: [T] extends [undefined]
-        ? () => boolean
-        : (emitting: T) => boolean = ((
+    public readonly emit: [T] extends [{}|null]
+        ? (emitting: T) => boolean
+        : () => boolean = ((
         emitting?: T,
     ) /* undefined only valid for singals */ => {
         const hadListeners = this.listeners.length > 0;
@@ -143,5 +143,5 @@ export class Event<T = undefined> {
         // remove all listeners that only wanted to listen once
         this.listeners = this.listeners.filter((l) => !l.once);
         return hadListeners;
-    }) as T extends undefined ? () => boolean : (data: T) => boolean;
+    }) as [T] extends [{}|null] ? (emitting: T) => boolean : () => boolean;
 }
