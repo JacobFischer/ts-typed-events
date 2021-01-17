@@ -130,7 +130,8 @@ export class Event<T = undefined> {
      * be omitted.
      * @returns True if the event had listeners emitted to, false otherwise.
      */
-    public readonly emit: [T] extends [{}|null]
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    public readonly emit: [T] extends [{} | null]
         ? (emitting: T) => boolean
         : () => boolean = ((
         emitting?: T,
@@ -143,5 +144,6 @@ export class Event<T = undefined> {
         // remove all listeners that only wanted to listen once
         this.listeners = this.listeners.filter((l) => !l.once);
         return hadListeners;
-    }) as [T] extends [{}|null] ? (emitting: T) => boolean : () => boolean;
+        // eslint-disable-next-line @typescript-eslint/ban-types
+    }) as [T] extends [{} | null] ? (emitting: T) => boolean : () => boolean;
 }
