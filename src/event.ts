@@ -132,7 +132,9 @@ export class Event<T = undefined> {
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
     public readonly emit: [T] extends [{} | null]
-        ? (emitting: T) => boolean
+        ? undefined extends T
+            ? (emitting?: T) => boolean
+            : (emitting: T) => boolean
         : () => boolean = ((
         emitting?: T,
     ) /* undefined only valid for signals */ => {
@@ -145,5 +147,9 @@ export class Event<T = undefined> {
         this.listeners = this.listeners.filter((l) => !l.once);
         return hadListeners;
         // eslint-disable-next-line @typescript-eslint/ban-types
-    }) as [T] extends [{} | null] ? (emitting: T) => boolean : () => boolean;
+    }) as [T] extends [{} | null]
+        ? undefined extends T
+            ? (emitting?: T) => boolean
+            : (emitting: T) => boolean
+        : () => boolean;
 }
