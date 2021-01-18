@@ -1,11 +1,20 @@
 import { Emitter, Event, SealedEvent } from "../src/";
 
 describe("SealedEvent", () => {
-    it("should construct", () => {
+    it("should destructure as an object", () => {
         const {
             event,
             emit,
         }: { event: SealedEvent; emit: Emitter } = Event.createSealed();
+        expect(event).toBeInstanceOf(Event);
+        expect(typeof emit).toBe("function");
+    });
+
+    it("should destructure as an array", () => {
+        const [event, emit]: readonly [
+            SealedEvent,
+            Emitter,
+        ] = Event.createSealed();
         expect(event).toBeInstanceOf(Event);
         expect(typeof emit).toBe("function");
     });
