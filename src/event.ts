@@ -23,6 +23,15 @@ export type Emitter<T> = [T] extends [{} | null]
     : () => boolean;
 
 export class Event<T = undefined> {
+    static createSealed<T = undefined>(): {
+        event: SealedEvent<T>;
+        emit: Emitter<T>;
+    } {
+        const event = new this<T>();
+        const emit = event.emit;
+        return { event, emit };
+    }
+
     /** All the current listeners for this event. */
     private listeners: Array<Listener<T>> = [];
 
@@ -150,3 +159,6 @@ export class Event<T = undefined> {
         return hadListeners;
     }) as Emitter<T>;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface SealedEvent<T> extends Omit<Event<T>, "emit"> {}
