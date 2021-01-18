@@ -16,7 +16,7 @@ interface Listener<T> {
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export type Emitter<T> = [T] extends [{} | null]
+export type Emitter<T = undefined> = [T] extends [{} | null]
     ? undefined extends T
         ? (emitting?: T) => boolean
         : (emitting: T) => boolean
@@ -161,4 +161,4 @@ export class Event<T = undefined> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface SealedEvent<T> extends Omit<Event<T>, "emit"> {}
+export interface SealedEvent<T = undefined> extends Omit<Event<T>, "emit"> {}
