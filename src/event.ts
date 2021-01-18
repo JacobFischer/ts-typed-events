@@ -23,13 +23,13 @@ export type Emitter<T = undefined> = [T] extends [{} | null]
     : () => boolean;
 
 export class Event<T = undefined> {
-    static createSealed<T = undefined>(): {
-        event: SealedEvent<T>;
+    static createSealed<T = undefined>(): readonly [Event<T>, Emitter<T>] & {
+        event: Event<T>;
         emit: Emitter<T>;
     } {
         const event = new this<T>();
         const emit = event.emit;
-        return { event, emit };
+        return Object.assign([event, emit] as const, { event, emit });
     }
 
     /** All the current listeners for this event. */
