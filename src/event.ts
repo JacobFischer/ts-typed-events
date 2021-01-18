@@ -15,6 +15,13 @@ interface Listener<T> {
     promise?: Promise<T>;
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Emitter<T> = [T] extends [{} | null]
+    ? undefined extends T
+        ? (emitting?: T) => boolean
+        : (emitting: T) => boolean
+    : () => boolean;
+
 export class Event<T = undefined> {
     /** All the current listeners for this event. */
     private listeners: Array<Listener<T>> = [];
@@ -130,9 +137,7 @@ export class Event<T = undefined> {
      * be omitted.
      * @returns True if the event had listeners emitted to, false otherwise.
      */
-    public readonly emit: [T] extends [undefined]
-        ? () => boolean
-        : (emitting: T) => boolean = ((
+    public readonly emit: Emitter<T> = ((
         emitting?: T,
     ) /* undefined only valid for singals */ => {
         const hadListeners = this.listeners.length > 0;
@@ -143,5 +148,5 @@ export class Event<T = undefined> {
         // remove all listeners that only wanted to listen once
         this.listeners = this.listeners.filter((l) => !l.once);
         return hadListeners;
-    }) as [T] extends [undefined] ? () => boolean : (data: T) => boolean;
+    }) as Emitter<T>;
 }
