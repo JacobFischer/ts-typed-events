@@ -16,11 +16,11 @@ interface Listener<T> {
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export type Emitter<T = undefined> = [T] extends [{} | null]
-    ? undefined extends T
-        ? (emitting?: T) => boolean
-        : (emitting: T) => boolean
-    : () => boolean;
+export type Emitter<T = undefined> = Exclude<T, undefined> extends never
+    ? () => boolean
+    : undefined extends T
+    ? (emitting?: T) => boolean
+    : (emitting: T) => boolean;
 
 export class Event<T = undefined> {
     static createSealed<T = undefined>(): readonly [Event<T>, Emitter<T>] & {
