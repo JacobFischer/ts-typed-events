@@ -178,4 +178,61 @@ describe("Event", () => {
 
         expect(signal.emit()).toEqual(true); // emit with no data because this is a signal
     });
+
+    it("should allow events with any", () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const event = new Event<any>();
+
+        event.on((arg) => {
+            expect(arg).toEqual(100);
+        });
+
+        expect(event.emit(100)).toEqual(true);
+    });
+
+    it("should allow events with an union type", () => {
+        const event = new Event<number | string>();
+
+        // Test number
+        event.once((arg) => {
+            expect(arg).toEqual(100);
+        });
+        expect(event.emit(100)).toEqual(true);
+
+        // Test string
+        event.once((arg) => {
+            expect(arg).toEqual("test");
+        });
+        expect(event.emit("test")).toEqual(true);
+    });
+
+    it("should allow events with an union type including undefined", () => {
+        const event = new Event<
+            { key: string } | number | string | undefined
+        >();
+
+        // Test number
+        event.once((arg) => {
+            expect(arg).toEqual(100);
+        });
+        expect(event.emit(100)).toEqual(true);
+
+        // Test string
+        event.once((arg) => {
+            expect(arg).toEqual("test");
+        });
+        expect(event.emit("test")).toEqual(true);
+
+        // Test object
+        event.once((arg) => {
+            expect(arg).toEqual({ key: "test" });
+        });
+        expect(event.emit({ key: "test" })).toEqual(true);
+
+        // Test undefined (signal)
+        event.once((arg) => {
+            expect(arg).toBeUndefined();
+        });
+        expect(event.emit()).toEqual(true);
+    });
 });
