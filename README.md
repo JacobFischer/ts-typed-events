@@ -22,40 +22,40 @@ emitters.
 ### Importing
 
 ```ts
-import { Event } from "ts-typed-events";
+import { createEvent } from "ts-typed-events";
 ```
 
 ### Simple Usage
 
 ```ts
-const event = new Event<string>();
+const [event, emit] = createEvent<string>();
 
 event.on((str) => {
     console.log("hey we got the string: ", str);
 });
 
-event.emit("some string"); // prints `hey we got the string: some string`
+emit("some string"); // prints `hey we got the string: some string`
 ```
 
 ### Events without types (signals)
 
 ```ts
-const signal = new Event();
+const [signal, emit] = createEvent();
 
 signal.on(() => {
     console.log("The event triggered!");
 });
 
-signal.emit(); // prints: `The event triggered!`
+emit(); // prints: `The event triggered!`
 ```
 
 ### async/await usage
 
 ```ts
-const event = new Event<number>();
+const [event, emit] = createEvent<number>();
 
 // emit the event in 1 second
-setTimeout(() => event.emit(1337), 1000);
+setTimeout(() => emit(1337), 1000);
 
 const emitted = await event.once();
 console.log("1 sec later we got", emitted);
@@ -68,40 +68,60 @@ times.
 ### Multiple callbacks
 
 ```ts
-const event = new Event<"pizza" | "ice cream">();
+const [event, emit] = createEvent<"pizza" | "ice cream">();
 
 event.on((food) => console.log("I like", food));
 event.on((badFood) => console.log(badFood, "is bad for me!"));
 
-event.emit("pizza");
+emit("pizza");
 // printed: `I like pizza` followed by `pizza is bad for me!`
 ```
 
 ### Removing callbacks
 
 ```ts
-const event = new Event();
+const [event, emit] = createEvent();
 const callback = () => { throw new Error("I don't want to be called"); };
 
 event.on(callback);
 event.off(callback);
 
-event.emit(); // The callback was removed, so it does not get called
+emit(); // The callback was removed, so it does not get called
+```
+
+### Public Events
+
+In the above examples, the `event` and `emit` are two seperate constructs.
+This is to seperate the callback and invokation logic. However there are some
+times when you could want an event to be able to be triggered by anything with
+access to it.
+
+```ts
+const publicEvent = new PublicEvent();
+
+publicEvent.on(() => console.log("someone triggered this!"));
+
+publicEvent.emit(); // prints: `someone triggered this!`
 ```
 
 ### Classes
 
 ```ts
 class Dog {
-    eventBarked = new Event();
+    // By keeping reference to the tuple, we have wrapped the emit function
+    // in a priavte variable, and only exposed the public event.
+    // This allows us to decide inside our class instances when we want to
+    // emit events.
+    private barkedTuple = createEvent();
+    public barked = this.barkedTuple.event;
 
-    bark() {
-        this.eventBarked.emit();
+    public bark() {
+        this.barkedTuple.emit();
     }
 }
 
 const dog = new Dog();
-dog.eventBarked.on(() => console.log("The dog barked!"));
+dog.barked.on(() => console.log("The dog barked!"));
 dog.bark();
 // printed: `The dog barked!`;
 ```

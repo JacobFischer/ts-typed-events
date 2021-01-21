@@ -1,7 +1,6 @@
 export * from "./event";
-export * from "./events";
 
-import { Event, events } from "./";
+import { Event } from "./";
 
 /** Old style exports for those using them. */
-module.exports = { Event, events };
+module.exports = { Event };

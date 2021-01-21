@@ -91,13 +91,9 @@ describe("Event", () => {
 
         for (i = 0; i < TIMES; i++) {
             const returned = event.emit(i);
-            if (i === 0) {
-                expect(returned).toEqual(true);
-            } else {
-                // the listener should be removed,
-                // and thus it should return false for no listeners
-                expect(returned).toEqual(false);
-            }
+            // when true, the listener should be removed,
+            // and thus it should return false for no listeners
+            expect(returned).toEqual(i === 0);
         }
 
         expect(callback).toBeCalledTimes(1);
