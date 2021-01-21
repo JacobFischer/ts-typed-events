@@ -15,7 +15,23 @@ interface Listener<T> {
     promise?: Promise<T>;
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Emitter<T = undefined> = Exclude<T, undefined> extends never
+    ? () => boolean
+    : undefined extends T
+    ? (emitting?: T) => boolean
+    : (emitting: T) => boolean;
+
 export class Event<T = undefined> {
+    static createSealed<T = undefined>(): readonly [Event<T>, Emitter<T>] & {
+        event: Event<T>;
+        emit: Emitter<T>;
+    } {
+        const event = new this<T>();
+        const emit = event.emit;
+        return Object.assign([event, emit] as const, { event, emit });
+    }
+
     /** All the current listeners for this event. */
     private listeners: Array<Listener<T>> = [];
 
@@ -130,9 +146,7 @@ export class Event<T = undefined> {
      * be omitted.
      * @returns True if the event had listeners emitted to, false otherwise.
      */
-    public readonly emit: [T] extends [undefined]
-        ? () => boolean
-        : (emitting: T) => boolean = ((
+    public readonly emit: Emitter<T> = ((
         emitting?: T,
     ) /* undefined only valid for singals */ => {
         const hadListeners = this.listeners.length > 0;
@@ -143,5 +157,8 @@ export class Event<T = undefined> {
         // remove all listeners that only wanted to listen once
         this.listeners = this.listeners.filter((l) => !l.once);
         return hadListeners;
-    }) as [T] extends [undefined] ? () => boolean : (data: T) => boolean;
+    }) as Emitter<T>;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface SealedEvent<T = undefined> extends Omit<Event<T>, "emit"> {}
