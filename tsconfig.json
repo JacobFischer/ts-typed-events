@@ -2,7 +2,6 @@
     "compilerOptions": {
         "target": "ES3",
         "module": "commonjs",
-        "lib": [], // none
         "moduleResolution": "node",
         "outDir": "dist",
         "declaration": true,
@@ -11,7 +10,4 @@
         "esModuleInterop": true,
         "inlineSourceMap": true,
     },
-    "include": [
-        "./src/",
-    ],
 }

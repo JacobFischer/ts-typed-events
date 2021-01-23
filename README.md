@@ -9,29 +9,30 @@ work with _in TypeScript_.
 ## Purpose
 
 Using Node's [EventEmitter](https://nodejs.org/api/events.html) class is nice;
-it's a useful software engineering paradigm. However in TypeScript you loose out
+it's a useful software engineering paradigm. However in TypeScript you lose out
 on TypeScript's robust type checking when publishing and subscribing to events.
 
 The aim of this is to leverage TypeScript's generic types to allow for compile-
 time type checking. We also move the events into their own class, so you don't
 have to inherit or mixin any of our classes, just use these single Event
-emitters.
+emitters. It is also un-opinionated, exposing functional and object oriented
+build blocks in this library so you can use it best works in your project.
 
 ## Examples
 
 ### Importing
 
 ```ts
-import { createEvent } from "ts-typed-events";
+import { createEventAndEmitter } from "ts-typed-events";
 ```
 
 ### Simple Usage
 
 ```ts
-const [event, emit] = createEvent<string>();
+const [event, emit] = createEventAndEmitter<string>();
 
 event.on((str) => {
-    console.log("hey we got the string: ", str);
+    console.log("hey we got the string:", str);
 });
 
 emit("some string"); // prints `hey we got the string: some string`
@@ -40,7 +41,7 @@ emit("some string"); // prints `hey we got the string: some string`
 ### Events without types (signals)
 
 ```ts
-const [signal, emit] = createEvent();
+const [signal, emit] = createEventAndEmitter();
 
 signal.on(() => {
     console.log("The event triggered!");
@@ -52,7 +53,7 @@ emit(); // prints: `The event triggered!`
 ### async/await usage
 
 ```ts
-const [event, emit] = createEvent<number>();
+const [event, emit] = createEventAndEmitter<number>();
 
 // emit the event in 1 second
 setTimeout(() => emit(1337), 1000);
@@ -68,7 +69,7 @@ times.
 ### Multiple callbacks
 
 ```ts
-const [event, emit] = createEvent<"pizza" | "ice cream">();
+const [event, emit] = createEventAndEmitter<"pizza" | "ice cream">();
 
 event.on((food) => console.log("I like", food));
 event.on((badFood) => console.log(badFood, "is bad for me!"));
@@ -80,7 +81,7 @@ emit("pizza");
 ### Removing callbacks
 
 ```ts
-const [event, emit] = createEvent();
+const [event, emit] = createEventAndEmitter();
 const callback = () => { throw new Error("I don't want to be called"); };
 
 event.on(callback);
@@ -91,8 +92,8 @@ emit(); // The callback was removed, so it does not get called
 
 ### Public Events
 
-In the above examples, the `event` and `emit` are two seperate constructs.
-This is to seperate the callback and invokation logic. However there are some
+In the above examples, the `event` and `emit` are two separate constructs.
+This is to separate the callback and invocation logic. However there are some
 times when you could want an event to be able to be triggered by anything with
 access to it.
 
@@ -104,19 +105,32 @@ publicEvent.on(() => console.log("someone triggered this!"));
 publicEvent.emit(); // prints: `someone triggered this!`
 ```
 
+You can also use it functionally if you want to avoid classes/OOP.
+
+```ts
+const [publicEvent, publicEmit] = newPublicEventAndEmit<string>();
+
+publicEvent.on((emitted) => console.log(`someone emitted: '${emitted}'!`));
+
+publicEmit("first"); // prints: `someone emitted 'first'!`
+
+// and you can use the publicly exposed function too
+publicEvent.emit("second"); // prints: `someone emitted 'second'!`
+```
+
 ### Classes
 
 ```ts
 class Dog {
     // By keeping reference to the tuple, we have wrapped the emit function
-    // in a priavte variable, and only exposed the public event.
+    // in a private variable, and only exposed the public event.
     // This allows us to decide inside our class instances when we want to
     // emit events.
-    private barkedTuple = createEvent();
+    private barkedEventEmit = createEventAndEmit();
     public barked = this.barkedTuple.event;
 
     public bark() {
-        this.barkedTuple.emit();
+        this.barkedEventEmit.emit();
     }
 }
 

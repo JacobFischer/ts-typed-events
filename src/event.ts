@@ -15,23 +15,22 @@ interface Listener<T> {
     promise?: Promise<T>;
 }
 
+type HasUndefined<T, C = [T extends undefined ? true : false]> = C extends [
+    true,
+]
+    ? true
+    : C extends [false]
+    ? false
+    : true;
+
 // eslint-disable-next-line @typescript-eslint/ban-types
-export type Emitter<T = undefined> = Exclude<T, undefined> extends never
-    ? () => boolean
-    : undefined extends T
-    ? (emitting?: T) => boolean
+export type Emitter<T = undefined> = HasUndefined<T> extends true
+    ? Exclude<T, undefined> extends never
+        ? () => boolean
+        : (emitting?: T) => boolean
     : (emitting: T) => boolean;
 
 export class Event<T = undefined> {
-    static createSealed<T = undefined>(): readonly [Event<T>, Emitter<T>] & {
-        event: Event<T>;
-        emit: Emitter<T>;
-    } {
-        const event = new this<T>();
-        const emit = event.emit;
-        return Object.assign([event, emit] as const, { event, emit });
-    }
-
     /** All the current listeners for this event. */
     private listeners: Array<Listener<T>> = [];
 
@@ -135,30 +134,123 @@ export class Event<T = undefined> {
         this.listeners.length = 0; // empty our listener array
         return originalLength;
     }
+}
 
+/**
+ * Creates an emitter for an Event.
+ *
+ * @internal
+ * @param event - The event to create an emitter for.
+ * @returns A new emitter function for the given event.
+ */
+function createEmitter<T>(event: Event<T>): Emitter<T> {
+    // Hack-y, we are reaching into to grab the listeners
+    // realistically, this would be a friend style function
+    const publicListenersEvent = (event as unknown) as {
+        listeners: Array<Listener<T>>;
+    };
     /**
-     * Emits a value to all the listeners, triggering their callbacks.
-     * Returns true if the event had listeners emitted to,
-     * false otherwise.
+     * The emitter function for the event.
      *
-     * @param emitting - If the Event has a type, this is the data of that type
-     * to emit to all listeners. If no type (never) this argument should
-     * be omitted.
-     * @returns True if the event had listeners emitted to, false otherwise.
+     * @param emitting - Whatever is being emitted.
+     * @returns True if any listeners were emitted to, false otherwise.
      */
-    public readonly emit: Emitter<T> = ((
-        emitting?: T,
-    ) /* undefined only valid for singals */ => {
-        const hadListeners = this.listeners.length > 0;
-        for (const listener of this.listeners) {
+    function emit(emitting?: T) {
+        const { listeners } = publicListenersEvent;
+        const hadListeners = listeners.length > 0;
+        for (const listener of listeners) {
             listener.callback(emitting as T);
         }
 
         // remove all listeners that only wanted to listen once
-        this.listeners = this.listeners.filter((l) => !l.once);
+        publicListenersEvent.listeners = listeners.filter(({ once }) => !once);
         return hadListeners;
-    }) as Emitter<T>;
+    }
+
+    return emit as Emitter<T>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface SealedEvent<T = undefined> extends Omit<Event<T>, "emit"> {}
+/**
+ * Bundles up an Event instance with an emitter for it, in the expected tuple
+ * return type for creator functions.
+ *
+ * @internal
+ * @param event - The event to wrap the Event in.
+ * @returns A special Array tuple with the [event, emit] and keyed off those
+ * names.
+ */
+function tupleEventAndEmitter<TEvent extends Event<T>, T>(
+    event: TEvent,
+): EventAndEmitter<T, TEvent> {
+    const emit = createEmitter(event);
+    const eventAndEmit = [event, emit] as [TEvent, Emitter<T>] & {
+        event: TEvent;
+        emit: Emitter<T>;
+    };
+
+    eventAndEmit.emit = emit;
+    eventAndEmit.event = event;
+
+    return eventAndEmit;
+}
+
+/**
+ * A tuple of both [event, emit] and {event, emit},
+ * for you to consume however you desire.
+ * The emitter for this event will only exist returned here, seperate from the
+ * event.
+ */
+export type EventAndEmitter<T, TEvent extends Event<T>> = readonly [
+    event: TEvent,
+    emitter: Emitter<T>,
+] & {
+    event: TEvent;
+    emit: Emitter<T>;
+};
+
+/**
+ * Creates and returns a new Event and the emitter for that Event.
+ *
+ * @returns A tuple of the [event, emit] both keyed as an array and object.
+ */
+export function createEventAndEmit<T = undefined>(): EventAndEmitter<
+    T,
+    Event<T>
+> {
+    return tupleEventAndEmitter(new Event<T>());
+}
+
+/**
+ * A specialized Event that holds a reference to its own emit function.
+ * This allows any code with access to the Event to also trigger emits.
+ */
+export class PublicEvent<T> extends Event<T> {
+    /**
+     * Emits a value to all the listeners, triggering their callbacks.
+     * Returns true if the event had listeners emitted to,
+     * false otherwise.
+     * Because this exists on the event, any code with access to this event
+     * can trigger the callback for all listeners.
+     *
+     * @param emitting - If the Event has a type, this is the data of that type
+     * to emit to all listeners. If no type (undefined) this argument should
+     * be omitted.
+     * @returns True if the event had listeners emitted to, false otherwise.
+     */
+    public emit = createEmitter(this);
+}
+
+/**
+ * A tuple of both [event, emit] and {event, emit},
+ * for you to consume however you desire.
+ * The emitter can be considered optional, as the PublicEvent returned can self
+ * emit. However this is exposed for API parody with the non Public version.
+ *
+ * @returns A tuple of the [event, emit] both keyed as an array and object.
+ */
+export function createPublicEventAndEmitter<T = undefined>(): EventAndEmitter<
+    T,
+    PublicEvent<T>
+> {
+    return tupleEventAndEmitter(new PublicEvent<T>());
+}

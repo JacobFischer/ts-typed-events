@@ -10,6 +10,11 @@ process.env.ESLINT_PATH_TSCONFIG = resolve("./tsconfig.eslint.json");
 const baseEslintConfig = {
     extends: ["jacobfischer/node"],
     ignorePatterns: ["dist/*", "docs/*"],
+    settings: {
+        jsdoc: {
+            ignoreInternal: true,
+        },
+    },
 };
 
 module.exports = baseEslintConfig;
