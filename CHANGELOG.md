@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog]
 and this project adheres to [Semantic Versioning].
 
+## [3.0.0] - 2021-01-21
+### Changes
+- `events` removed.
+  - See [#8] for alternative approaches to `events.concat`
+- `Event` class no longer has an `emit` member function.
+- `SharedEvent` instead is an `Event` that now has the `emit` member function.
+  - This class is a drop in replacement for the old `Event`
+- `createEvent()` helper function added that returns the event and stand alone
+  emit function.
+
 ## [2.0.0] - 2020-05-18
 ### Changes
 - Rename TypeScript interfaces `IEvents` and `IEventsFunction` to `Events` and `EventsFunction` respectively.
@@ -45,3 +55,4 @@ and this project adheres to [Semantic Versioning].
 [1.1.1]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v1.1.1
 [2.0.0]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v2.0.0
 [#6]: https://github.com/JacobFischer/ts-typed-events/issues/6
+[#8]: https://github.com/JacobFischer/ts-typed-events/issues/8
