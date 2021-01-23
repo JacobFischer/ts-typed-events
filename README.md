@@ -112,10 +112,10 @@ const [publicEvent, publicEmit] = newPublicEventAndEmit<string>();
 
 publicEvent.on((emitted) => console.log(`someone emitted: '${emitted}'!`));
 
-publicEmit("first"); // prints: `someone emitted 'first'!`
+publicEvent.emit("first"); // prints: `someone emitted 'first'!`
 
-// and you can use the publicly exposed function too
-publicEvent.emit("second"); // prints: `someone emitted 'second'!`
+// you still can use the "normal" emitter too
+publicEmit("second"); // prints: `someone emitted 'second'!`
 ```
 
 ### Classes
@@ -127,7 +127,7 @@ class Dog {
     // This allows us to decide inside our class instances when we want to
     // emit events.
     private barkedEventEmit = createEventAndEmit();
-    public barked = this.barkedTuple.event;
+    public barked = this.barkedEventEmit.event;
 
     public bark() {
         this.barkedEventEmit.emit();
@@ -136,8 +136,7 @@ class Dog {
 
 const dog = new Dog();
 dog.barked.on(() => console.log("The dog barked!"));
-dog.bark();
-// printed: `The dog barked!`;
+dog.bark(); // prints: `The dog barked!`;
 ```
 
 ## Other Notes
@@ -149,7 +148,7 @@ sticking to the built-in EventEmitter class.
 
 ## Docs
 
-All the functions are documented clearly using jsdoc style comments, so your
+All the functions are documented using jsdoc style comments, so your
 favorite IDE should pick up the documentation cleanly.
 
 However, if you prefer external docs, they are available online here:

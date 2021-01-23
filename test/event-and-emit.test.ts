@@ -1,6 +1,6 @@
 import {
     createEventAndEmit,
-    createPublicEventAndEmitter as createPublicEventAndEmit,
+    createPublicEventAndEmit,
     Event,
     PublicEvent,
 } from "../src/";
@@ -264,33 +264,29 @@ createFunctions.forEach((create) =>
                 expect(undefinedListener).toBeCalled();
             });
         });
-
-        if (create === createPublicEventAndEmit) {
-            describe("Public specifics", () => {
-                it("should return PublicEvents", () => {
-                    const returned = createPublicEventAndEmit();
-                    expect(returned[0]).toBeInstanceOf(PublicEvent);
-                    expect(returned.event).toBeInstanceOf(PublicEvent);
-                });
-
-                it("public emit and tuple emit should be interchangeable", () => {
-                    let emitting: string | number = 1;
-                    const [event, emit] = createPublicEventAndEmit<
-                        string | number
-                    >();
-
-                    const callback = jest.fn((emitted) => {
-                        expect(emitted).toStrictEqual(emitting);
-                    });
-                    event.on(callback);
-
-                    expect(emit(emitting)).toBeTruthy();
-                    emitting = "test string";
-                    expect(event.emit(emitting)).toBeTruthy();
-
-                    expect(callback).toBeCalledTimes(2);
-                });
-            });
-        }
     }),
 );
+
+describe("createPublicEventAndEmit() specifics", () => {
+    it("should return PublicEvents", () => {
+        const returned = createPublicEventAndEmit();
+        expect(returned[0]).toBeInstanceOf(PublicEvent);
+        expect(returned.event).toBeInstanceOf(PublicEvent);
+    });
+
+    it("should emit via the event and emit", () => {
+        let emitting: string | number = 1;
+        const [event, emit] = createPublicEventAndEmit<string | number>();
+
+        const callback = jest.fn((emitted) => {
+            expect(emitted).toStrictEqual(emitting);
+        });
+        event.on(callback);
+
+        expect(emit(emitting)).toBeTruthy();
+        emitting = "test string";
+        expect(event.emit(emitting)).toBeTruthy();
+
+        expect(callback).toBeCalledTimes(2);
+    });
+});

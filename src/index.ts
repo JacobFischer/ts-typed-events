@@ -3,7 +3,11 @@
  * for more details.
  */
 
-/** A simple container for all event listeners. */
+/**
+ * A simple container for all event listeners.
+ *
+ * @internal
+ */
 interface Listener<T> {
     /** Indicates if they should be removed after one emit. */
     once: boolean;
@@ -15,6 +19,7 @@ interface Listener<T> {
     promise?: Promise<T>;
 }
 
+/** Checks if a type extends undefined, without a discriminator. */
 type HasUndefined<T, C = [T extends undefined ? true : false]> = C extends [
     true,
 ]
@@ -24,18 +29,20 @@ type HasUndefined<T, C = [T extends undefined ? true : false]> = C extends [
     : true;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
+/** The shape of a function that emits a value to all listeners on an Event. */
 export type Emitter<T = undefined> = HasUndefined<T> extends true
     ? Exclude<T, undefined> extends never
         ? () => boolean
         : (emitting?: T) => boolean
     : (emitting: T) => boolean;
 
+/** An event that can register listeners when the event has value(s) emitted. */
 export class Event<T = undefined> {
     /** All the current listeners for this event. */
     private listeners: Array<Listener<T>> = [];
 
     /**
-     * Attaches a listener to trigger on all emits for this event.
+     * Attaches a callback to trigger on all emits for this event.
      *
      * @param callback - The callback to invoke on all emits.
      */
@@ -47,7 +54,7 @@ export class Event<T = undefined> {
     }
 
     /**
-     * Attaches a listener to trigger on only the first emit for this event.
+     * Attaches a callback to trigger on only the first emit for this event.
      * After that event is emitted this callback will automatically be
      * removed.
      *
@@ -57,18 +64,18 @@ export class Event<T = undefined> {
     public once(callback: (emitted: T) => void): void;
 
     /**
-     * Attaches a listener to trigger on only the first emit for this event.
+     * Attaches a callback to trigger on only the first emit for this event.
      *
-     * Returns a promise that resolves with the data the next time this event
-     * is triggered (only once).
+     * Returns a promise that resolves with the emitted data the next time this
+     * event is triggered (only once).
      *
-     * @returns A promise that resolves with the data the next time this event
-     * is triggered (only once).
+     * @returns A promise that resolves with the emitted data the next time this
+     * event is triggered (only once).
      */
     public once(): Promise<T>;
 
     /**
-     * Attaches a listener to trigger on only the first emit for this event.
+     * Attaches a callback to trigger on only the first emit for this event.
      *
      * This version either takes a callback or returns a promise.
      *
@@ -101,8 +108,7 @@ export class Event<T = undefined> {
     }
 
     /**
-     * Removes a callback from the listeners on this event, regardless of once
-     * vs on.
+     * Removes a callback from this event (regardless of once vs on).
      *
      * Returns true if a callback was removed, false otherwise.
      *
@@ -179,7 +185,7 @@ function createEmitter<T>(event: Event<T>): Emitter<T> {
  * @returns A special Array tuple with the [event, emit] and keyed off those
  * names.
  */
-function tupleEventAndEmitter<TEvent extends Event<T>, T>(
+function tupleEventAndEmit<TEvent extends Event<T>, T>(
     event: TEvent,
 ): EventAndEmitter<T, TEvent> {
     const emit = createEmitter(event);
@@ -197,12 +203,12 @@ function tupleEventAndEmitter<TEvent extends Event<T>, T>(
 /**
  * A tuple of both [event, emit] and {event, emit},
  * for you to consume however you desire.
- * The emitter for this event will only exist returned here, seperate from the
+ * The emitter for this event will only exist returned here, separate from the
  * event.
  */
 export type EventAndEmitter<T, TEvent extends Event<T>> = readonly [
-    event: TEvent,
-    emitter: Emitter<T>,
+    TEvent,
+    Emitter<T>,
 ] & {
     event: TEvent;
     emit: Emitter<T>;
@@ -217,7 +223,7 @@ export function createEventAndEmit<T = undefined>(): EventAndEmitter<
     T,
     Event<T>
 > {
-    return tupleEventAndEmitter(new Event<T>());
+    return tupleEventAndEmit(new Event<T>());
 }
 
 /**
@@ -248,9 +254,9 @@ export class PublicEvent<T> extends Event<T> {
  *
  * @returns A tuple of the [event, emit] both keyed as an array and object.
  */
-export function createPublicEventAndEmitter<T = undefined>(): EventAndEmitter<
+export function createPublicEventAndEmit<T = undefined>(): EventAndEmitter<
     T,
     PublicEvent<T>
 > {
-    return tupleEventAndEmitter(new PublicEvent<T>());
+    return tupleEventAndEmit(new PublicEvent<T>());
 }
