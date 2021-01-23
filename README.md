@@ -23,13 +23,13 @@ build blocks in this library so you can use it best works in your project.
 ### Importing
 
 ```ts
-import { createEventAndEmitter } from "ts-typed-events";
+import { createEventAndEmit } from "ts-typed-events";
 ```
 
 ### Simple Usage
 
 ```ts
-const [event, emit] = createEventAndEmitter<string>();
+const [event, emit] = createEventAndEmit<string>();
 
 event.on((str) => {
     console.log("hey we got the string:", str);
@@ -41,7 +41,7 @@ emit("some string"); // prints `hey we got the string: some string`
 ### Events without types (signals)
 
 ```ts
-const [signal, emit] = createEventAndEmitter();
+const [signal, emit] = createEventAndEmit();
 
 signal.on(() => {
     console.log("The event triggered!");
@@ -53,7 +53,7 @@ emit(); // prints: `The event triggered!`
 ### async/await usage
 
 ```ts
-const [event, emit] = createEventAndEmitter<number>();
+const [event, emit] = createEventAndEmit<number>();
 
 // emit the event in 1 second
 setTimeout(() => emit(1337), 1000);
@@ -69,7 +69,7 @@ times.
 ### Multiple callbacks
 
 ```ts
-const [event, emit] = createEventAndEmitter<"pizza" | "ice cream">();
+const [event, emit] = createEventAndEmit<"pizza" | "ice cream">();
 
 event.on((food) => console.log("I like", food));
 event.on((badFood) => console.log(badFood, "is bad for me!"));
@@ -81,7 +81,7 @@ emit("pizza");
 ### Removing callbacks
 
 ```ts
-const [event, emit] = createEventAndEmitter();
+const [event, emit] = createEventAndEmit();
 const callback = () => { throw new Error("I don't want to be called"); };
 
 event.on(callback);
@@ -98,6 +98,8 @@ times when you could want an event to be able to be triggered by anything with
 access to it.
 
 ```ts
+import { PublicEvent } from "ts-typed-events";
+
 const publicEvent = new PublicEvent();
 
 publicEvent.on(() => console.log("someone triggered this!"));
@@ -108,7 +110,9 @@ publicEvent.emit(); // prints: `someone triggered this!`
 You can also use it functionally if you want to avoid classes/OOP.
 
 ```ts
-const [publicEvent, publicEmit] = newPublicEventAndEmit<string>();
+import { createPublicEventAndEmit } from "ts-typed-events";
+
+const [publicEvent, publicEmit] = createPublicEventAndEmit<string>();
 
 publicEvent.on((emitted) => console.log(`someone emitted: '${emitted}'!`));
 
