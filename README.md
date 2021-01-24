@@ -23,13 +23,13 @@ build blocks in this library so you can use it best works in your project.
 ### Importing
 
 ```ts
-import { createEventAndEmit } from "ts-typed-events";
+import { createEventEmitter } from "ts-typed-events";
 ```
 
 ### Simple Usage
 
 ```ts
-const [event, emit] = createEventAndEmit<string>();
+const { event, emit } = createEventEmitter<string>();
 
 event.on((str) => {
     console.log("hey we got the string:", str);
@@ -41,7 +41,7 @@ emit("some string"); // prints `hey we got the string: some string`
 ### Events without types (signals)
 
 ```ts
-const [signal, emit] = createEventAndEmit();
+const { event: signal, emit } = createEventEmitter<string>();
 
 signal.on(() => {
     console.log("The event triggered!");
@@ -53,7 +53,7 @@ emit(); // prints: `The event triggered!`
 ### async/await usage
 
 ```ts
-const [event, emit] = createEventAndEmit<number>();
+const { event, emit } = createEventEmitter<number>();
 
 // emit the event in 1 second
 setTimeout(() => emit(1337), 1000);
@@ -69,7 +69,7 @@ times.
 ### Multiple callbacks
 
 ```ts
-const [event, emit] = createEventAndEmit<"pizza" | "ice cream">();
+const { event, emit } = createEventEmitter<"pizza" | "ice cream">();
 
 event.on((food) => console.log("I like", food));
 event.on((badFood) => console.log(badFood, "is bad for me!"));
@@ -81,13 +81,36 @@ emit("pizza");
 ### Removing callbacks
 
 ```ts
-const [event, emit] = createEventAndEmit();
-const callback = () => { throw new Error("I don't want to be called"); };
+const { event, emit } = createEventEmitter();
 
+const callback = () => { throw new Error("I don't want to be called"); };
 event.on(callback);
 event.off(callback);
 
-emit(); // The callback was removed, so it does not get called
+// The callback was removed, so the Error in the callback is not thrown
+const emitted = emit();
+console.log("were any callbacks invoked during the emit?", emitted);
+// printed: `were any callbacks invoked during the emit? false`
+```
+
+### Alternative Syntax
+
+The main method, `createEventEmitter`, returns the emitter function, with
+the event and itself as properties. This makes the above examples when used
+with destructuring look clean. However you can choose not to destructure it
+as well:
+
+```ts
+const emit = createEventEmitter<"something" | undefined>();
+
+emit.event.on((something) => {
+    console.log("did we get something?:", something);
+});
+
+emit(); // prints `did we get something?: undefined`
+
+// the emitter has access to itself via the `emit` key as well
+console.log(emit === emit.emit); // print `true`
 ```
 
 ### Public Events
@@ -112,29 +135,31 @@ You can also use it functionally if you want to avoid classes/OOP.
 ```ts
 import { createPublicEventAndEmit } from "ts-typed-events";
 
-const [publicEvent, publicEmit] = createPublicEventAndEmit<string>();
+const { event, emit } = createPublicEventEmitter<string>();
 
-publicEvent.on((emitted) => console.log(`someone emitted: '${emitted}'!`));
+event.on((emitted) => console.log(`someone emitted: '${emitted}'!`));
 
-publicEvent.emit("first"); // prints: `someone emitted 'first'!`
+event.emit("first"); // prints: `someone emitted 'first'!`
 
 // you still can use the "normal" emitter too
-publicEmit("second"); // prints: `someone emitted 'second'!`
+emit("second"); // prints: `someone emitted 'second'!`
 ```
 
 ### Classes
 
 ```ts
 class Dog {
+    private timesBarked = 0;
     // By keeping reference to the tuple, we have wrapped the emit function
     // in a private variable, and only exposed the public event.
     // This allows us to decide inside our class instances when we want to
     // emit events.
-    private barkedEventEmit = createEventAndEmit();
-    public barked = this.barkedEventEmit.event;
+    private emitBarked = createEventEmit();
+    public barked = this.emitBarked.event;
 
     public bark() {
-        this.barkedEventEmit.emit();
+        this.timesBarked += 1;
+        this.emitBarked();
     }
 }
 
