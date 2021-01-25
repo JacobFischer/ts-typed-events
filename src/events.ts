@@ -56,6 +56,7 @@ export interface EventsFunction {
  *
  * Returns a frozen object of events for easy grouping.
  *
+ * @deprecated - see https://github.com/JacobFischer/ts-typed-events/issues/8.
  * @param group - An object of events used to group the event by name.
  * @returns A frozen object of events for easy grouping.
  */

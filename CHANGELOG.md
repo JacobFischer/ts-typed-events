@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog]
 and this project adheres to [Semantic Versioning].
 
+## [2.0.1] - 2021-01-24
+### Changes
+- `events` helper functions depreciated. See [#8].
+- This is a maintenance release to fix the npm versions before v3.0 release.
+
 ## [2.0.0] - 2020-05-18
 ### Changes
 - Rename TypeScript interfaces `IEvents` and `IEventsFunction` to `Events` and `EventsFunction` respectively.
@@ -44,4 +49,6 @@ and this project adheres to [Semantic Versioning].
 [1.1.0]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v1.1.0
 [1.1.1]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v1.1.1
 [2.0.0]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v2.0.0
+[2.0.1]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v2.0.1
 [#6]: https://github.com/JacobFischer/ts-typed-events/issues/6
+[#8]: https://github.com/JacobFischer/ts-typed-events/issues/8
