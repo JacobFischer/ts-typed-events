@@ -1,4 +1,4 @@
-# ts-typed-events
+# ts-typed-events - v3.0 Release Candidate 2
 
 Strongly typed event emitters for [TypeScript](https://www.typescriptlang.org/).
 
