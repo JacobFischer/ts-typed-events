@@ -79,3 +79,5 @@ and this project adheres to [Semantic Versioning].
 [#12]: https://github.com/JacobFischer/ts-typed-events/issues/12
 [#13]: https://github.com/JacobFischer/ts-typed-events/pull/13
 [#14]: https://github.com/JacobFischer/ts-typed-events/pull/14
+[#6]: https://github.com/JacobFischer/ts-typed-events/issues/6
+[#8]: https://github.com/JacobFischer/ts-typed-events/issues/8
