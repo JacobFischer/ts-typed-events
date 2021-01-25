@@ -1,14 +1,14 @@
 import {
-    createEventAndEmit,
-    createPublicEventAndEmit,
-    Event,
-    PublicEvent,
+    createEventEmitter,
+    createPublicEventEmitter,
+    TypedEvent,
+    PublicTypedEvent,
 } from "../src/";
 
 const createFunctions = [
-    createEventAndEmit,
-    createPublicEventAndEmit,
-] as Array<typeof createEventAndEmit>;
+    createEventEmitter,
+    createPublicEventEmitter,
+] as Array<typeof createEventEmitter>;
 
 createFunctions.forEach((create) =>
     describe(`${create.name}()`, () => {
@@ -20,21 +20,18 @@ createFunctions.forEach((create) =>
         it("should return an EventAndEmit tuple", () => {
             const returned = create();
             expect(returned).toBeTruthy();
-            expect(Array.isArray(returned)).toBe(true);
-            expect(returned.length).toBe(2);
+            expect(typeof returned).toBe("function");
+            expect(returned.name).toBe("emit");
 
-            expect(returned[0]).toBeInstanceOf(Event);
-            expect(returned.event).toBeInstanceOf(Event);
-            expect(returned[0]).toStrictEqual(returned.event);
+            expect(returned.event).toBeInstanceOf(TypedEvent);
 
-            expect(typeof returned[1]).toBe("function");
             expect(typeof returned.emit).toBe("function");
-            expect(returned[1]).toStrictEqual(returned.emit);
+            expect(returned).toStrictEqual(returned.emit);
         });
 
         it("should emit to listeners on the event", () => {
             const VAL = Symbol("emitTest");
-            const [event, emit] = create<typeof VAL>();
+            const { event, emit } = create<typeof VAL>();
             const fn = jest.fn((arg) => {
                 expect(arg).toBe(VAL);
             });
@@ -50,7 +47,7 @@ createFunctions.forEach((create) =>
 
         it("should emit the correct type", () => {
             const stringValue = "Some string to test with";
-            const [event, emit] = create<string>();
+            const { event, emit } = create<string>();
             event.on((arg) => {
                 expect(arg).toEqual(stringValue);
                 expect(typeof arg).toEqual("string");
@@ -60,7 +57,7 @@ createFunctions.forEach((create) =>
 
         it("should emit multiple times with on", () => {
             let i = 0;
-            const [event, emit] = create<number>();
+            const { event, emit } = create<number>();
 
             const TIMES = 20;
             const callback = jest.fn((arg) => {
@@ -82,7 +79,7 @@ createFunctions.forEach((create) =>
                 baz: [1, 2, 3],
             };
 
-            const [event, emit] = create<typeof complex>();
+            const { event, emit } = create<typeof complex>();
             event.on((obj) => {
                 expect(obj).toStrictEqual(complex);
             });
@@ -91,7 +88,7 @@ createFunctions.forEach((create) =>
 
         it("should only emit once via once()", () => {
             let i = 0;
-            const [event, emit] = create<number>();
+            const { event, emit } = create<number>();
             const TIMES = 20;
             const callback = jest.fn((arg) => {
                 expect(typeof arg).toEqual("number");
@@ -117,7 +114,7 @@ createFunctions.forEach((create) =>
 
         it("should emit to callbacks once", async () => {
             const VAL = Symbol("onceTest");
-            const [event, emit] = create<symbol | undefined>();
+            const { event, emit } = create<symbol | undefined>();
 
             setImmediate(() => {
                 emit(VAL);
@@ -129,7 +126,7 @@ createFunctions.forEach((create) =>
 
         it("should be able to remove a listener", () => {
             const NUM = 1337;
-            const [event, emit] = create<number>();
+            const { event, emit } = create<number>();
             const callback = () => {
                 expect(NUM).toEqual(NUM);
             };
@@ -145,7 +142,7 @@ createFunctions.forEach((create) =>
 
         it("should be able to remove a listener promise", () => {
             const NUM = 1337;
-            const [event, emit] = create<number>();
+            const { event, emit } = create<number>();
             const promise = event.once();
             expect(promise).toBeInstanceOf(Promise);
 
@@ -161,20 +158,45 @@ createFunctions.forEach((create) =>
         });
 
         it("should tell when no listener is removed", () => {
-            const [event] = create<number>();
+            const { event } = create<number>();
 
             expect(event.off(() => null)).toEqual(false);
         });
 
         it("should remove all listeners", () => {
             const LISTENERS = 8;
-            const [event] = create<number>();
+            const { event } = create<number>();
 
             for (let i = 0; i < LISTENERS; i++) {
                 event.on(() => true);
             }
 
             expect(event.offAll()).toEqual(LISTENERS);
+        });
+
+        it("should work within a class", () => {
+            class Dog {
+                // By keeping reference to the tuple, we have wrapped the emit function
+                // in a private variable, and only exposed the public event.
+                // This allows us to decide inside our class instances when we want to
+                // emit events.
+                private emitBarked = create();
+                public barked = this.emitBarked.event;
+
+                public bark() {
+                    this.emitBarked();
+                }
+            }
+
+            const fn = jest.fn((arg) => {
+                expect(arg).toBeUndefined();
+            });
+
+            const dog = new Dog();
+            dog.barked.on(fn);
+            dog.bark();
+
+            expect(fn).toBeCalled();
         });
 
         describe("TypeScript types", () => {
@@ -217,7 +239,7 @@ createFunctions.forEach((create) =>
             });
 
             it("should allow events with no generic type (signals)", () => {
-                const [signal, emit] = create();
+                const { event: signal, emit } = create();
 
                 signal.on((arg) => {
                     expect(arg).toBeUndefined();
@@ -227,7 +249,7 @@ createFunctions.forEach((create) =>
             });
 
             it("should allow events with an union type including undefined", () => {
-                const [event, emit] = create<
+                const { event, emit } = create<
                     { key: string } | number | string | undefined
                 >();
 
@@ -269,14 +291,13 @@ createFunctions.forEach((create) =>
 
 describe("createPublicEventAndEmit() specifics", () => {
     it("should return PublicEvents", () => {
-        const returned = createPublicEventAndEmit();
-        expect(returned[0]).toBeInstanceOf(PublicEvent);
-        expect(returned.event).toBeInstanceOf(PublicEvent);
+        const returned = createPublicEventEmitter();
+        expect(returned.event).toBeInstanceOf(PublicTypedEvent);
     });
 
     it("should emit via the event and emit", () => {
         let emitting: string | number = 1;
-        const [event, emit] = createPublicEventAndEmit<string | number>();
+        const { event, emit } = createPublicEventEmitter<string | number>();
 
         const callback = jest.fn((emitted) => {
             expect(emitted).toStrictEqual(emitting);

@@ -35,5 +35,6 @@ deploy:
     skip_cleanup: true
     email: "jacob.t.fischer@gmail.com"
     api_key: $NPM_TOKEN
+    tag: next
     on:
       tags: true
