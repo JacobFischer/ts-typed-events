@@ -5,14 +5,27 @@ The format is based on [Keep a Changelog]
 and this project adheres to [Semantic Versioning].
 
 ## [3.0.0] - 2021-??-??
+### Added
+- `PublicTypedEvent`: Same as <= v2 `Event`.
+  - This can be used as a drop in replacement for the previous `Event` class
+    when upgrading with no additional work.
+- `TypedEvent` also added, but lacks an `emit` member function.
+  - This is intended to be the "main" event class going forward.
+- `createEventEmitter()` is the new "main" method going forward to handle most
+  events. See docs for use.
+  - See [#14].
+- `createPublicEventEmitter()` also added a matching API, but with
+  `PublicTypedEvent` events instead.
+
 ### Changes
-- `events` removed.
-  - See [#8] for alternative approaches to `events.concat`
-- `Event` class no longer has an `emit` member function.
-- `SharedEvent` instead is an `Event` that now has the `emit` member function.
-  - This class is a drop in replacement for the old `Event`
-- `createEvent()` helper function added that returns the event and stand alone
-  emit function.
+- `events` fully removed.
+  - See [#8] for discussion and alternatives when upgrading.
+- `Event` replaced with `PublicTypedEvent` and `TypedEvent` listed above.
+- Exports changed to the new functions/classes/types.
+
+### Fixed
+- Circular imports are no longer encountered during module loading [#12].
+- The `any` type should be correctly handled for emitter functions [#13].
 
 ## [2.0.1] - 2021-01-24
 ### Changes
@@ -60,5 +73,9 @@ and this project adheres to [Semantic Versioning].
 [1.1.1]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v1.1.1
 [2.0.0]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v2.0.0
 [2.0.1]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v2.0.1
+[3.0.0]: https://github.com/JacobFischer/ts-typed-events/releases/tag/v3.0.0
 [#6]: https://github.com/JacobFischer/ts-typed-events/issues/6
 [#8]: https://github.com/JacobFischer/ts-typed-events/issues/8
+[#12]: https://github.com/JacobFischer/ts-typed-events/issues/12
+[#13]: https://github.com/JacobFischer/ts-typed-events/pull/13
+[#14]: https://github.com/JacobFischer/ts-typed-events/pull/14
