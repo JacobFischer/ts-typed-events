@@ -6,21 +6,24 @@ and this project adheres to [Semantic Versioning].
 
 ## [3.0.0] - 2021-??-??
 ### Added
-- `PublicTypedEvent`: Same as <= v2 `Event`.
+- `PublicEvent`: Same as <= v2 `Event`.
   - This can be used as a drop in replacement for the previous `Event` class
     when upgrading with no additional work.
-- `TypedEvent` also added, but lacks an `emit` member function.
-  - This is intended to be the "main" event class going forward.
 - `createEventEmitter()` is the new "main" method going forward to handle most
   events. See docs for use.
   - See [#14].
 - `createPublicEventEmitter()` also added a matching API, but with
-  `PublicTypedEvent` events instead.
+  `PublicEvent` events instead.
 
 ### Changes
 - `events` fully removed.
   - See [#8] for discussion and alternatives when upgrading.
-- `Event` replaced with `PublicTypedEvent` and `TypedEvent` listed above.
+- `Event` replaced with `PublicEvent` and `Event` listed above.
+  - This is intended to be the "main" event class going forward, but never
+    created directly.
+  - `emit` removed, use `PublicEvent` as a drop-in replacement.
+  - Constructing via `new` is no longer supported, and marked as such in the TS
+    definitions.
 - Exports changed to the new functions/classes/types.
 
 ### Fixed
@@ -43,7 +46,7 @@ and this project adheres to [Semantic Versioning].
 
 ## [1.1.1] - 2018-01-05
 ### Changes
-- Update package dependencies to resolve marked v0.3.6 security vunerability
+- Update package dependencies to resolve marked v0.3.6 security vulnerability
 - Correct the names of some tests with poor grammar/spelling
 
 ## [1.1.0] - 2017-12-31

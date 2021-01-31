@@ -1,8 +1,8 @@
 import {
     createEventEmitter,
     createPublicEventEmitter,
-    TypedEvent,
-    PublicTypedEvent,
+    Event,
+    PublicEvent,
 } from "../src/";
 
 const createFunctions = [
@@ -23,7 +23,7 @@ createFunctions.forEach((create) =>
             expect(typeof returned).toBe("function");
             expect(returned.name).toBe("emit");
 
-            expect(returned.event).toBeInstanceOf(TypedEvent);
+            expect(returned.event).toBeInstanceOf(Event);
 
             expect(typeof returned.emit).toBe("function");
             expect(returned).toStrictEqual(returned.emit);
@@ -292,7 +292,7 @@ createFunctions.forEach((create) =>
 describe("createPublicEventAndEmit() specifics", () => {
     it("should return PublicEvents", () => {
         const returned = createPublicEventEmitter();
-        expect(returned.event).toBeInstanceOf(PublicTypedEvent);
+        expect(returned.event).toBeInstanceOf(PublicEvent);
     });
 
     it("should emit via the event and emit", () => {

@@ -30,7 +30,7 @@ type HasUndefined<T, C = [T extends undefined ? true : false]> = C extends [
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 /** An emitter function for a ts-typed-events Event. */
-export type TypedEmitter<T = undefined> = HasUndefined<T> extends true
+export type Emitter<T = undefined> = HasUndefined<T> extends true
     ? Exclude<T, undefined> extends never
         ? () => boolean
         : (emitting?: T) => boolean
@@ -40,9 +40,17 @@ export type TypedEmitter<T = undefined> = HasUndefined<T> extends true
  * A ts-typed-events event to register callbacks on to be invoked when they are
  * emitted.
  */
-export class TypedEvent<T = undefined> {
+export class Event<T = undefined> {
     /** All the current listeners for this event. */
     private listeners: Array<Listener<T>> = [];
+
+    /**
+     * Marked as protected to discourage creation outside of
+     * createEventEmitter().
+     */
+    protected constructor() {
+        // pass
+    }
 
     /**
      * Attaches a callback to trigger on all emits for this event.
@@ -146,13 +154,26 @@ export class TypedEvent<T = undefined> {
 }
 
 /**
+ * This is a bit of a hack to signal to developers that normal Events should
+ * not be constructed via the `new` keyword. However we still need to create
+ * them within this library.
+ * @internal
+ */
+function newEvent<T>(): Event<T> {
+    const EventClass = (Event as unknown) as {
+        new (): Event<T>;
+    };
+    return new EventClass();
+}
+
+/**
  * Creates an emitter for an Event.
  *
  * @internal
  * @param event - The event to create an emitter for.
  * @returns A new emitter function for the given event.
  */
-function createEmitter<T>(event: TypedEvent<T>): TypedEmitter<T> {
+function createEmitter<T>(event: Event<T>): Emitter<T> {
     // Hack-y, we are reaching into to grab the listeners
     // realistically, this would be a friend style function
     const publicListenersEvent = (event as unknown) as {
@@ -176,7 +197,7 @@ function createEmitter<T>(event: TypedEvent<T>): TypedEmitter<T> {
         return hadListeners;
     }
 
-    return emit as TypedEmitter<T>;
+    return emit as Emitter<T>;
 }
 
 /**
@@ -185,33 +206,30 @@ function createEmitter<T>(event: TypedEvent<T>): TypedEmitter<T> {
  * The emitter for this event will only exist returned here, separate from the
  * event.
  */
-export type TypedEventAndEmitter<T, TEvent extends TypedEvent<T>> = readonly [
+export type EventAndEmitter<T, TEvent extends Event<T>> = readonly [
     TEvent,
-    TypedEmitter<T>,
+    Emitter<T>,
 ] & {
     event: TEvent;
-    emit: TypedEmitter<T>;
+    emit: Emitter<T>;
 };
 
 /** An emitter function with itself and its event as properties keyed on it. */
-export type TypedEventEmitter<
-    T,
-    TEvent extends TypedEvent<T>
-> = TypedEmitter<T> & {
+export type EventEmitter<T, TEvent extends Event<T>> = Emitter<T> & {
     event: TEvent;
-    emit: TypedEmitter<T>;
+    emit: Emitter<T>;
 };
 
 /** @internal */
-function createEmitterWithEvent<T, TEvent extends TypedEvent<T>>(
+function createEmitterWithEvent<T, TEvent extends Event<T>>(
     event: TEvent,
-): TypedEventEmitter<T, TEvent> {
+): EventEmitter<T, TEvent> {
     const emit = createEmitter(event);
 
     // Hack: Need to find a better way to convince TS this function will have
     // the correct keys on these complex functions.
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-    const func: TypedEventEmitter<T, TEvent> = emit as any;
+    const func: EventEmitter<T, TEvent> = emit as any;
 
     func.event = event;
     func.emit = emit;
@@ -224,18 +242,18 @@ function createEmitterWithEvent<T, TEvent extends TypedEvent<T>>(
  *
  * @returns A tuple of the [event, emit] both keyed as an array and object.
  */
-export function createEventEmitter<T = undefined>(): TypedEventEmitter<
+export function createEventEmitter<T = undefined>(): EventEmitter<
     T,
-    TypedEvent<T>
+    Event<T>
 > {
-    return createEmitterWithEvent(new TypedEvent<T>());
+    return createEmitterWithEvent(newEvent());
 }
 
 /**
  * A specialized Event that holds a reference to its own emit function.
  * This allows any code with access to the Event to also trigger emits.
  */
-export class PublicTypedEvent<T> extends TypedEvent<T> {
+export class PublicEvent<T> extends Event<T> {
     /**
      * Emits a value to all the listeners, triggering their callbacks.
      * Returns true if the event had listeners emitted to,
@@ -249,6 +267,14 @@ export class PublicTypedEvent<T> extends TypedEvent<T> {
      * @returns True if the event had listeners emitted to, false otherwise.
      */
     public emit = createEmitter(this);
+
+    /**
+     * Creates a new PublicConstructor, with it's emit accessible as a member
+     * function.
+     */
+    public constructor() {
+        super();
+    }
 }
 
 /**
@@ -259,9 +285,9 @@ export class PublicTypedEvent<T> extends TypedEvent<T> {
  *
  * @returns A tuple of the [event, emit] both keyed as an array and object.
  */
-export function createPublicEventEmitter<T = undefined>(): TypedEventEmitter<
+export function createPublicEventEmitter<T = undefined>(): EventEmitter<
     T,
-    PublicTypedEvent<T>
+    PublicEvent<T>
 > {
-    return createEmitterWithEvent(new PublicTypedEvent<T>());
+    return createEmitterWithEvent(new PublicEvent());
 }

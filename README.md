@@ -3,8 +3,9 @@
 Strongly typed event emitters for [TypeScript](https://www.typescriptlang.org/).
 
 This is a TypeScript project, although the compiled source is available in the
-npm package, it is solely designed around the purpose of making events easier to
-work with _in TypeScript_.
+npm package without any runtime dependencies, it is solely designed around the
+purpose of making events easier to work with _in TypeScript_ via the included
+definitions.
 
 ## Purpose
 
@@ -26,7 +27,19 @@ build blocks in this library so you can use it best works in your project.
 import { createEventEmitter } from "ts-typed-events";
 ```
 
-### Simple Usage
+### Simple usage
+
+```ts
+const { event, emit } = createEventEmitter();
+
+signal.on(() => {
+    console.log("The event triggered!");
+});
+
+emit(); // prints: `The event triggered!`
+```
+
+### Strongly typed events
 
 ```ts
 const { event, emit } = createEventEmitter<string>();
@@ -36,18 +49,6 @@ event.on((str) => {
 });
 
 emit("some string"); // prints `hey we got the string: some string`
-```
-
-### Events without types (signals)
-
-```ts
-const { event: signal, emit } = createEventEmitter<string>();
-
-signal.on(() => {
-    console.log("The event triggered!");
-});
-
-emit(); // prints: `The event triggered!`
 ```
 
 ### async/await usage
