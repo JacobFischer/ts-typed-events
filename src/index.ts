@@ -263,10 +263,6 @@ export class PublicEvent<T> extends Event<T> {
     public constructor() {
         super();
     }
-
-    public foo(): number {
-        return 1;
-    }
 }
 
 /**
