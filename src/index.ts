@@ -25,8 +25,8 @@ type HasUndefined<T, C = [T extends undefined ? true : false]> = C extends [
 ]
     ? true
     : C extends [false]
-    ? false
-    : true;
+        ? false
+        : true;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 /** An emitter function for a ts-typed-events Event. */
@@ -200,23 +200,11 @@ function createEmitter<T>(event: Event<T>): Emitter<T> {
     return emit as Emitter<T>;
 }
 
-/**
- * A tuple of both [event, emit] and {event, emit},
- * for you to consume however you desire.
- * The emitter for this event will only exist returned here, separate from the
- * event.
- */
-export type EventAndEmitter<T, TEvent extends Event<T>> = readonly [
-    TEvent,
-    Emitter<T>,
-] & {
-    event: TEvent;
-    emit: Emitter<T>;
-};
-
 /** An emitter function with itself and its event as properties keyed on it. */
 export type EventEmitter<T, TEvent extends Event<T>> = Emitter<T> & {
+    /** The Event this emitter emits to. */
     event: TEvent;
+    /** A cyclical reference to the same emitter function. */
     emit: Emitter<T>;
 };
 
@@ -274,6 +262,10 @@ export class PublicEvent<T> extends Event<T> {
      */
     public constructor() {
         super();
+    }
+
+    public foo(): number {
+        return 1;
     }
 }
 
