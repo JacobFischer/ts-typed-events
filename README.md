@@ -134,7 +134,7 @@ publicEvent.emit(); // prints: `someone triggered this!`
 You can also use it functionally if you want to avoid classes/OOP.
 
 ```ts
-import { createPublicEventAndEmit } from "ts-typed-events";
+import { createPublicEventEmitter } from "ts-typed-events";
 
 const { event, emit } = createPublicEventEmitter<string>();
 
