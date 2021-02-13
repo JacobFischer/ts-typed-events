@@ -1,36 +1,36 @@
-import { Event, PublicEvent } from "../src/";
+import { Event, PublicEvent } from '../src/';
 
-describe("PublicEvent class", () => {
-    it("should be able to be constructed", () => {
-        expect(() => new PublicEvent()).not.toThrow();
+describe('PublicEvent class', () => {
+  it('should be able to be constructed', () => {
+    expect(() => new PublicEvent()).not.toThrow();
+  });
+
+  it('should be an Event', () => {
+    const publicEvent = new PublicEvent();
+    expect(publicEvent).toBeInstanceOf(Event);
+  });
+
+  it('should have an emit member function', () => {
+    const publicEvent = new PublicEvent();
+    expect(publicEvent.emit).toBeTruthy();
+    expect(typeof publicEvent.emit).toBe('function');
+  });
+
+  it('should be able to emit via the event', () => {
+    const testing = Symbol('test string');
+    const publicEvent = new PublicEvent<symbol>();
+    const callback = jest.fn((emitted) => {
+      expect(emitted).toBe(testing);
     });
 
-    it("should be an Event", () => {
-        const publicEvent = new PublicEvent();
-        expect(publicEvent).toBeInstanceOf(Event);
-    });
+    publicEvent.on(callback);
+    publicEvent.emit(testing);
 
-    it("should have an emit member function", () => {
-        const publicEvent = new PublicEvent();
-        expect(publicEvent.emit).toBeTruthy();
-        expect(typeof publicEvent.emit).toBe("function");
-    });
+    expect(callback).toBeCalled();
+  });
 
-    it("should be able to emit via the event", () => {
-        const testing = Symbol("test string");
-        const publicEvent = new PublicEvent<symbol>();
-        const callback = jest.fn((emitted) => {
-            expect(emitted).toBe(testing);
-        });
-
-        publicEvent.on(callback);
-        publicEvent.emit(testing);
-
-        expect(callback).toBeCalled();
-    });
-
-    it("should allow types to be optional", () => {
-        const event = new PublicEvent();
-        expect(() => event.emit()).not.toThrow();
-    });
+  it('should allow types to be optional', () => {
+    const event = new PublicEvent();
+    expect(() => event.emit()).not.toThrow();
+  });
 });

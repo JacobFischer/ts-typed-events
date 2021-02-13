@@ -1,1 +1,1 @@
-module.exports = require("eslint-config-jacobfischer/prettier.config.js");
+module.exports = require('eslint-config-jacobfischer/prettier.config.js');

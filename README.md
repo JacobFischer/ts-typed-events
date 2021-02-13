@@ -24,7 +24,7 @@ build blocks in this library so you can use it best works in your project.
 ### Importing
 
 ```ts
-import { createEventEmitter } from "ts-typed-events";
+import { createEventEmitter } from 'ts-typed-events';
 ```
 
 ### Simple usage
@@ -33,7 +33,7 @@ import { createEventEmitter } from "ts-typed-events";
 const { event, emit } = createEventEmitter();
 
 signal.on(() => {
-    console.log("The event triggered!");
+  console.log('The event triggered!');
 });
 
 emit(); // prints: `The event triggered!`
@@ -45,10 +45,10 @@ emit(); // prints: `The event triggered!`
 const { event, emit } = createEventEmitter<string>();
 
 event.on((str) => {
-    console.log("hey we got the string:", str);
+  console.log('hey we got the string:', str);
 });
 
-emit("some string"); // prints `hey we got the string: some string`
+emit('some string'); // prints `hey we got the string: some string`
 ```
 
 ### async/await usage
@@ -60,7 +60,7 @@ const { event, emit } = createEventEmitter<number>();
 setTimeout(() => emit(1337), 1000);
 
 const emitted = await event.once();
-console.log("1 sec later we got", emitted);
+console.log('1 sec later we got', emitted);
 // printed: `1 sec later we got 1337`
 ```
 
@@ -70,12 +70,12 @@ times.
 ### Multiple callbacks
 
 ```ts
-const { event, emit } = createEventEmitter<"pizza" | "ice cream">();
+const { event, emit } = createEventEmitter<'pizza' | 'ice cream'>();
 
-event.on((food) => console.log("I like", food));
-event.on((badFood) => console.log(badFood, "is bad for me!"));
+event.on((food) => console.log('I like', food));
+event.on((badFood) => console.log(badFood, 'is bad for me!'));
 
-emit("pizza");
+emit('pizza');
 // printed: `I like pizza` followed by `pizza is bad for me!`
 ```
 
@@ -84,13 +84,13 @@ emit("pizza");
 ```ts
 const { event, emit } = createEventEmitter();
 
-const callback = () => { throw new Error("I don't want to be called"); };
+const callback = () => { throw new Error(`I don't want to be called`); };
 event.on(callback);
 event.off(callback);
 
 // The callback was removed, so the Error in the callback is not thrown
 const emitted = emit();
-console.log("were any callbacks invoked during the emit?", emitted);
+console.log('were any callbacks invoked during the emit?', emitted);
 // printed: `were any callbacks invoked during the emit? false`
 ```
 
@@ -102,10 +102,10 @@ with destructuring look clean. However you can choose not to destructure it
 as well:
 
 ```ts
-const emit = createEventEmitter<"something" | undefined>();
+const emit = createEventEmitter<'something' | undefined>();
 
 emit.event.on((something) => {
-    console.log("did we get something?:", something);
+  console.log('did we get something?:', something);
 });
 
 emit(); // prints `did we get something?: undefined`
@@ -122,11 +122,11 @@ times when you could want an event to be able to be triggered by anything with
 access to it.
 
 ```ts
-import { PublicEvent } from "ts-typed-events";
+import { PublicEvent } from 'ts-typed-events';
 
 const publicEvent = new PublicEvent();
 
-publicEvent.on(() => console.log("someone triggered this!"));
+publicEvent.on(() => console.log('someone triggered this!'));
 
 publicEvent.emit(); // prints: `someone triggered this!`
 ```
@@ -134,38 +134,38 @@ publicEvent.emit(); // prints: `someone triggered this!`
 You can also use it functionally if you want to avoid classes/OOP.
 
 ```ts
-import { createPublicEventEmitter } from "ts-typed-events";
+import { createPublicEventEmitter } from 'ts-typed-events';
 
 const { event, emit } = createPublicEventEmitter<string>();
 
 event.on((emitted) => console.log(`someone emitted: '${emitted}'!`));
 
-event.emit("first"); // prints: `someone emitted 'first'!`
+event.emit('first'); // prints: `someone emitted 'first'!`
 
-// you still can use the "normal" emitter too
-emit("second"); // prints: `someone emitted 'second'!`
+// you still can use the 'normal' emitter too
+emit('second'); // prints: `someone emitted 'second'!`
 ```
 
 ### Classes
 
 ```ts
 class Dog {
-    private timesBarked = 0;
-    // By keeping reference to the tuple, we have wrapped the emit function
-    // in a private variable, and only exposed the public event.
-    // This allows us to decide inside our class instances when we want to
-    // emit events.
-    private emitBarked = createEventEmit();
-    public barked = this.emitBarked.event;
+  private timesBarked = 0;
+  // By keeping reference to the tuple, we have wrapped the emit function
+  // in a private variable, and only exposed the public event.
+  // This allows us to decide inside our class instances when we want to
+  // emit events.
+  private emitBarked = createEventEmit();
+  public barked = this.emitBarked.event;
 
-    public bark() {
-        this.timesBarked += 1;
-        this.emitBarked();
-    }
+  public bark() {
+    this.timesBarked += 1;
+    this.emitBarked();
+  }
 }
 
 const dog = new Dog();
-dog.barked.on(() => console.log("The dog barked!"));
+dog.barked.on(() => console.log('The dog barked!'));
 dog.bark(); // prints: `The dog barked!`;
 ```
 
