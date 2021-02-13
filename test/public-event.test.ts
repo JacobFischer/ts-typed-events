@@ -28,4 +28,9 @@ describe("PublicEvent class", () => {
 
         expect(callback).toBeCalled();
     });
+
+    it("should allow types to be optional", () => {
+        const event = new PublicEvent();
+        expect(() => event.emit()).not.toThrow();
+    });
 });

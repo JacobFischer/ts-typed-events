@@ -1,9 +1,9 @@
-# ts-typed-events - v3.0 Release Candidate 2
+# ts-typed-events
 
 Strongly typed event emitters for [TypeScript](https://www.typescriptlang.org/).
 
-This is a TypeScript project, although the compiled source is available in the
-npm package without any runtime dependencies, it is solely designed around the
+This is a TypeScript project, although the built code is available in the
+package without any runtime dependencies, it is solely designed around the
 purpose of making events easier to work with _in TypeScript_ via the included
 definitions.
 

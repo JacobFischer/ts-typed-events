@@ -25,8 +25,8 @@ type HasUndefined<T, C = [T extends undefined ? true : false]> = C extends [
 ]
     ? true
     : C extends [false]
-        ? false
-        : true;
+    ? false
+    : true;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 /** An emitter function for a ts-typed-events Event. */
@@ -241,7 +241,7 @@ export function createEventEmitter<T = undefined>(): EventEmitter<
  * A specialized Event that holds a reference to its own emit function.
  * This allows any code with access to the Event to also trigger emits.
  */
-export class PublicEvent<T> extends Event<T> {
+export class PublicEvent<T = undefined> extends Event<T> {
     /**
      * Emits a value to all the listeners, triggering their callbacks.
      * Returns true if the event had listeners emitted to,
