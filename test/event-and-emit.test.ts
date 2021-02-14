@@ -27,6 +27,10 @@ createFunctions.forEach((create) =>
 
       expect(typeof returned.emit).toBe('function');
       expect(returned).toStrictEqual(returned.emit);
+
+      const [event, emit] = returned;
+      expect(event).toEqual(returned.event);
+      expect(emit).toEqual(returned.emit);
     });
 
     it('should emit to listeners on the event', () => {
