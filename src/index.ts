@@ -203,7 +203,7 @@ export type EventEmitter<T, TEvent extends Event<T>> = Emitter<T> & {
   event: TEvent;
   /** A cyclical reference to the same emitter function. */
   emit: Emitter<T>;
-};
+} & [TEvent, Emitter<T>];
 
 /** @internal */
 function createEmitterWithEvent<T, TEvent extends Event<T>>(
@@ -219,7 +219,7 @@ function createEmitterWithEvent<T, TEvent extends Event<T>>(
   func.event = event;
   func.emit = emit;
 
-  return func;
+  return Object.assign(func, [event, emit]);
 }
 
 /**
