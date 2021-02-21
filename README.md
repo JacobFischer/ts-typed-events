@@ -1,6 +1,6 @@
 # ts-typed-events
 
-Strongly typed event emitters for [TypeScript](https://www.typescriptlang.org/).
+Strongly typed event emitters for [TypeScript].
 
 This is a TypeScript project, although the built code is available in the
 package without any runtime dependencies, it is solely designed around the
@@ -9,30 +9,44 @@ definitions.
 
 ## Purpose
 
-Using Node's [EventEmitter](https://nodejs.org/api/events.html) class is nice;
-it's a useful software engineering paradigm. However in TypeScript you lose out
-on TypeScript's robust type checking when publishing and subscribing to events.
+Using Node's [EventEmitter class] is nice; it's a useful software engineering
+paradigm. However in TypeScript you lose out on TypeScript's robust type
+checking when publishing and subscribing to events; or you must write very
+brittle function overloads for _every function_: `on`, `off`, `once`, `emit`,
+etc. This is annoying and tedious.
 
 The aim of this is to leverage TypeScript's generic types to allow for compile-
-time type checking. We also move the events into their own class, so you don't
-have to inherit or mixin any of our classes, just use these single Event
+time type checking. We also move the events into their own functions, so you
+don't have to inherit or mixin any of our classes, just use these single Event
 emitters. It is also un-opinionated, exposing functional and object oriented
-build blocks in this library so you can use it best works in your project.
+building blocks in this library so you can use it best works in your project.
 
 ## Examples
 
-### Importing
-
-```ts
-import { createEventEmitter } from 'ts-typed-events';
-```
-
 ### Simple usage
 
-```ts
-const { event, emit } = createEventEmitter();
+With classes
 
-signal.on(() => {
+```ts
+import { Event } from 'ts-typed-events';
+
+const event = new Event();
+
+event.on(() => {
+  console.log('The event triggered!');
+});
+
+event.emit(); // prints: `The event triggered!`
+```
+
+_or_ with functions
+
+```ts
+import { createEmitter } from 'ts-typed-events';
+
+const { emit, event } = createEmitter();
+
+event.on(() => {
   console.log('The event triggered!');
 });
 
@@ -42,22 +56,55 @@ emit(); // prints: `The event triggered!`
 ### Strongly typed events
 
 ```ts
-const { event, emit } = createEventEmitter<string>();
+const event = new Event<string>();
 
 event.on((str) => {
   console.log('hey we got the string:', str);
 });
 
-emit('some string'); // prints `hey we got the string: some string`
+event.emit('some string'); // prints `hey we got the string: some string`
 ```
+
+### Sealed Events
+
+The `Event` class has exposed the member function `emit`, which means any bit
+of code that can your event to listen, can also act as an event emitter.
+
+Often you'll find you do not want to trust bits of code with that
+responsibility. To that end this module exposes an alternative type of events
+and API to generate Events called `SealedEvents` that cannot self emit, and
+a separate emitter function
+
+```ts
+import { createEmitter, SealedEvent } from 'ts-typed-events';
+
+const { event, emit } = createEmitter<string>();
+
+event instanceof SealedEvent; // true
+
+event.on((str) => {
+  console.log('Emitted string:', str);
+});
+
+emit('emitter says hi'); // prints: 'Emitted string: emitter says hi'
+
+'emit' in event; // === false
+```
+
+**Note**: you can also use `createEventEmitter` if you wish the `event` type to
+be `instanceof Event`. However bear in mind that event has access to the
+emitter. This module exposes both for API uniformity.
 
 ### async/await usage
 
+You can register event listeners via traditional callbacks, or if no callback is
+supplied to `event.once()`, a Promise is returns you can `await`.
+
 ```ts
-const { event, emit } = createEventEmitter<number>();
+const event = new Event<number>();
 
 // emit the event in 1 second
-setTimeout(() => emit(1337), 1000);
+setTimeout(() => event.emit(1337), 1000);
 
 const emitted = await event.once();
 console.log('1 sec later we got', emitted);
@@ -70,39 +117,39 @@ times.
 ### Multiple callbacks
 
 ```ts
-const { event, emit } = createEventEmitter<'pizza' | 'ice cream'>();
+const event = new Event<'pizza' | 'ice cream'>();
 
 event.on((food) => console.log('I like', food));
 event.on((badFood) => console.log(badFood, 'is bad for me!'));
 
-emit('pizza');
+event.emit('pizza');
 // printed: `I like pizza` followed by `pizza is bad for me!`
 ```
 
 ### Removing callbacks
 
 ```ts
-const { event, emit } = createEventEmitter();
+const event = new Event();
 
 const callback = () => { throw new Error(`I don't want to be called`); };
 event.on(callback);
 event.off(callback);
 
 // The callback was removed, so the Error in the callback is not thrown
-const emitted = emit();
+const emitted = event.emit();
 console.log('were any callbacks invoked during the emit?', emitted);
 // printed: `were any callbacks invoked during the emit? false`
 ```
 
 ### Alternative Syntax
 
-The main method, `createEventEmitter`, returns the emitter function, with
+The method, `createEmitter`, returns the emitter function, with
 the event and itself as properties. This makes the above examples when used
 with destructuring look clean. However you can choose not to destructure it
 as well:
 
 ```ts
-const emit = createEventEmitter<'something' | undefined>();
+const emit = createEmitter<'something' | undefined>();
 
 emit.event.on((something) => {
   console.log('did we get something?:', something);
@@ -114,48 +161,20 @@ emit(); // prints `did we get something?: undefined`
 console.log(emit === emit.emit); // print `true`
 ```
 
-### Public Events
+### Combining this within Classes
 
-In the above examples, the `event` and `emit` are two separate constructs.
-This is to separate the callback and invocation logic. However there are some
-times when you could want an event to be able to be triggered by anything with
-access to it.
-
-```ts
-import { PublicEvent } from 'ts-typed-events';
-
-const publicEvent = new PublicEvent();
-
-publicEvent.on(() => console.log('someone triggered this!'));
-
-publicEvent.emit(); // prints: `someone triggered this!`
-```
-
-You can also use it functionally if you want to avoid classes/OOP.
-
-```ts
-import { createPublicEventEmitter } from 'ts-typed-events';
-
-const { event, emit } = createPublicEventEmitter<string>();
-
-event.on((emitted) => console.log(`someone emitted: '${emitted}'!`));
-
-event.emit('first'); // prints: `someone emitted 'first'!`
-
-// you still can use the 'normal' emitter too
-emit('second'); // prints: `someone emitted 'second'!`
-```
-
-### Classes
+As this module intends to replace the "built-in" [EventEmitter class], you
+can use it much more freely because it is not a class you **must** inherit like
+with the [EventEmitter class]. To replicate similar functionality you can make
+each event a separate member variable of your.
 
 ```ts
 class Dog {
   private timesBarked = 0;
-  // By keeping reference to the tuple, we have wrapped the emit function
-  // in a private variable, and only exposed the public event.
-  // This allows us to decide inside our class instances when we want to
-  // emit events.
-  private emitBarked = createEventEmit();
+  // NOTE: the emitter is private here, and the event is public.
+  // This allows the class to completely control when it emits.
+  private emitBarked = createEmitter();
+
   public barked = this.emitBarked.event;
 
   public bark() {
@@ -173,8 +192,8 @@ dog.bark(); // prints: `The dog barked!`;
 
 This library leverages TypeScript's interfaces and generics very heavily to do
 type checking at every point. If you plan to use this with regular JavaScript
-most of this library's features are lost to you, so you'd probably be best off
-sticking to the built-in EventEmitter class.
+most of this library's features are lost to you. However do not let that deter
+you from trying this, or [TypeScript]!
 
 ## Docs
 
@@ -183,3 +202,6 @@ favorite IDE should pick up the documentation cleanly.
 
 However, if you prefer external docs, they are available online here:
 https://jacobfischer.github.io/ts-typed-events/
+
+[TypeScript]: https://www.typescriptlang.org/
+[EventEmitter class]: https://nodejs.org/api/events.html#events_class_eventemitter

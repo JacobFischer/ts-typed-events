@@ -1,17 +1,18 @@
 import {
+  createEmitter,
   createEventEmitter,
-  createPublicEventEmitter,
+  BaseEvent,
   Event,
-  PublicEvent,
+  SealedEvent,
 } from '../src/';
 
 const createFunctions = [
-  createEventEmitter,
-  createPublicEventEmitter,
-] as Array<typeof createEventEmitter>;
+  [createEmitter, SealedEvent],
+  [createEventEmitter, Event],
+] as Array<[typeof createEmitter, typeof BaseEvent]>;
 
-createFunctions.forEach((create) =>
-  describe(`${create.name}()`, () => {
+createFunctions.forEach(([create, EventClass]) =>
+  describe(`${create.name}() core functionality`, () => {
     it('should exist', () => {
       expect(create).toBeTruthy();
       expect(typeof create).toBe('function');
@@ -23,7 +24,8 @@ createFunctions.forEach((create) =>
       expect(typeof returned).toBe('function');
       expect(returned.name).toBe('emit');
 
-      expect(returned.event).toBeInstanceOf(Event);
+      expect(returned.event).toBeInstanceOf(BaseEvent);
+      expect(returned.event).toBeInstanceOf(EventClass);
 
       expect(typeof returned.emit).toBe('function');
       expect(returned).toStrictEqual(returned.emit);
@@ -288,26 +290,3 @@ createFunctions.forEach((create) =>
     });
   }),
 );
-
-describe('createPublicEventAndEmit() specifics', () => {
-  it('should return PublicEvents', () => {
-    const returned = createPublicEventEmitter();
-    expect(returned.event).toBeInstanceOf(PublicEvent);
-  });
-
-  it('should emit via the event and emit', () => {
-    let emitting: string | number = 1;
-    const { event, emit } = createPublicEventEmitter<string | number>();
-
-    const callback = jest.fn((emitted) => {
-      expect(emitted).toStrictEqual(emitting);
-    });
-    event.on(callback);
-
-    expect(emit(emitting)).toBeTruthy();
-    emitting = 'test string';
-    expect(event.emit(emitting)).toBeTruthy();
-
-    expect(callback).toBeCalledTimes(2);
-  });
-});

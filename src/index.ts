@@ -40,7 +40,7 @@ export type Emitter<T = undefined> = HasUndefined<T> extends true
  * A ts-typed-events event to register callbacks on to be invoked when they are
  * emitted.
  */
-export class Event<T = undefined> {
+export abstract class BaseEvent<T = undefined> {
   /** All the current listeners for this event. */
   private listeners: Array<Listener<T>> = [];
 
@@ -151,16 +151,12 @@ export class Event<T = undefined> {
 }
 
 /**
- * This is a bit of a hack to signal to developers that normal Events should
- * not be constructed via the `new` keyword. However we still need to create
- * them within this library.
- * @internal
+ * A ts-typed-events event to register callbacks on to be invoked when they are
+ * emitted.
  */
-function newEvent<T>(): Event<T> {
-  const EventClass = (Event as unknown) as {
-    new (): Event<T>;
-  };
-  return new EventClass();
+export class SealedEvent<T = undefined> extends BaseEvent<T> {
+  // functionally identical to BaseEvent, just a different name to better
+  // signify its difference from the old `Event`.
 }
 
 /**
@@ -170,7 +166,7 @@ function newEvent<T>(): Event<T> {
  * @param event - The event to create an emitter for.
  * @returns A new emitter function for the given event.
  */
-function createEmitter<T>(event: Event<T>): Emitter<T> {
+function createEmitterFor<T>(event: BaseEvent<T>): Emitter<T> {
   // Hack-y, we are reaching into to grab the listeners
   // realistically, this would be a friend style function
   const publicListenersEvent = (event as unknown) as {
@@ -198,18 +194,18 @@ function createEmitter<T>(event: Event<T>): Emitter<T> {
 }
 
 /** An emitter function with itself and its event as properties keyed on it. */
-export type EventEmitter<T, TEvent extends Event<T>> = Emitter<T> & {
+export type EventEmitter<T, TEvent extends BaseEvent<T>> = Emitter<T> & {
   /** The Event this emitter emits to. */
   event: TEvent;
   /** A cyclical reference to the same emitter function. */
   emit: Emitter<T>;
-};
+} & [TEvent, Emitter<T>];
 
 /** @internal */
-function createEmitterWithEvent<T, TEvent extends Event<T>>(
+function createEmitterWithBaseEvent<T, TEvent extends BaseEvent<T>>(
   event: TEvent,
 ): EventEmitter<T, TEvent> {
-  const emit = createEmitter(event);
+  const emit = createEmitterFor(event);
 
   // Hack: Need to find a better way to convince TS this function will have
   // the correct keys on these complex functions.
@@ -227,18 +223,23 @@ function createEmitterWithEvent<T, TEvent extends Event<T>>(
  *
  * @returns A tuple of the [event, emit] both keyed as an array and object.
  */
-export function createEventEmitter<T = undefined>(): EventEmitter<
+export function createEmitter<T = undefined>(): EventEmitter<
   T,
-  Event<T>
+  SealedEvent<T>
 > {
-  return createEmitterWithEvent(newEvent());
+  // This is a hack-y way to create a new class instance that doesn't want you
+  // to.
+  const EventClass = (SealedEvent as unknown) as {
+    new (): SealedEvent<T>;
+  };
+  return createEmitterWithBaseEvent(new EventClass());
 }
 
 /**
  * A specialized Event that holds a reference to its own emit function.
  * This allows any code with access to the Event to also trigger emits.
  */
-export class PublicEvent<T = undefined> extends Event<T> {
+export class Event<T = undefined> extends BaseEvent<T> {
   /**
    * Emits a value to all the listeners, triggering their callbacks.
    * Returns true if the event had listeners emitted to,
@@ -251,11 +252,10 @@ export class PublicEvent<T = undefined> extends Event<T> {
    * be omitted.
    * @returns True if the event had listeners emitted to, false otherwise.
    */
-  public emit = createEmitter(this);
+  public emit = createEmitterFor(this);
 
   /**
-   * Creates a new PublicConstructor, with it's emit accessible as a member
-   * function.
+   * Creates a new Event, with its emit accessible as a member function.
    */
   public constructor() {
     super();
@@ -265,14 +265,14 @@ export class PublicEvent<T = undefined> extends Event<T> {
 /**
  * A tuple of both [event, emit] and {event, emit},
  * for you to consume however you desire.
- * The emitter can be considered optional, as the PublicEvent returned can self
- * emit. However this is exposed for API parody with the non Public version.
+ * The emitter can be considered optional, as the Event returned can self
+ * emit. However this is exposed for API parody with the SealedEvent version.
  *
  * @returns A tuple of the [event, emit] both keyed as an array and object.
  */
-export function createPublicEventEmitter<T = undefined>(): EventEmitter<
+export function createEventEmitter<T = undefined>(): EventEmitter<
   T,
-  PublicEvent<T>
+  Event<T>
 > {
-  return createEmitterWithEvent(new PublicEvent());
+  return createEmitterWithBaseEvent(new Event());
 }
