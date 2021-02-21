@@ -15,9 +15,9 @@ checking when publishing and subscribing to events; or you must write very
 brittle function overloads for _every function_: `on`, `off`, `once`, `emit`,
 etc. This is annoying and tedious.
 
-The aim of this is to leverage TypeScript's generic types to allow for compile-
-time type checking. We also move the events into their own functions, so you
-don't have to inherit or mixin any of our classes, just use these single Event
+The aim of this is to leverage TypeScript's generics to allow for compile-time
+type checking. We also move the events into their own functions, so you don't
+have to inherit or mixin any of our classes, just use these single Event
 emitters. It is also un-opinionated, exposing functional and object oriented
 building blocks in this library so you can use it best works in your project.
 
@@ -65,36 +65,6 @@ event.on((str) => {
 event.emit('some string'); // prints `hey we got the string: some string`
 ```
 
-### Sealed Events
-
-The `Event` class has exposed the member function `emit`, which means any bit
-of code that can your event to listen, can also act as an event emitter.
-
-Often you'll find you do not want to trust bits of code with that
-responsibility. To that end this module exposes an alternative type of events
-and API to generate Events called `SealedEvents` that cannot self emit, and
-a separate emitter function
-
-```ts
-import { createEmitter, SealedEvent } from 'ts-typed-events';
-
-const { event, emit } = createEmitter<string>();
-
-event instanceof SealedEvent; // true
-
-event.on((str) => {
-  console.log('Emitted string:', str);
-});
-
-emit('emitter says hi'); // prints: 'Emitted string: emitter says hi'
-
-'emit' in event; // === false
-```
-
-**Note**: you can also use `createEventEmitter` if you wish the `event` type to
-be `instanceof Event`. However bear in mind that event has access to the
-emitter. This module exposes both for API uniformity.
-
 ### async/await usage
 
 You can register event listeners via traditional callbacks, or if no callback is
@@ -141,26 +111,6 @@ console.log('were any callbacks invoked during the emit?', emitted);
 // printed: `were any callbacks invoked during the emit? false`
 ```
 
-### Alternative Syntax
-
-The method, `createEmitter`, returns the emitter function, with
-the event and itself as properties. This makes the above examples when used
-with destructuring look clean. However you can choose not to destructure it
-as well:
-
-```ts
-const emit = createEmitter<'something' | undefined>();
-
-emit.event.on((something) => {
-  console.log('did we get something?:', something);
-});
-
-emit(); // prints `did we get something?: undefined`
-
-// the emitter has access to itself via the `emit` key as well
-console.log(emit === emit.emit); // print `true`
-```
-
 ### Combining this within Classes
 
 As this module intends to replace the "built-in" [EventEmitter class], you
@@ -187,6 +137,56 @@ const dog = new Dog();
 dog.barked.on(() => console.log('The dog barked!'));
 dog.bark(); // prints: `The dog barked!`;
 ```
+
+### Alternative Syntax
+
+The method, `createEmitter`, returns the emitter function, with
+the event and itself as properties. This makes the above examples when used
+with destructuring look clean. However you can choose not to destructure it
+as well:
+
+```ts
+const emit = createEmitter<'something' | undefined>();
+
+emit.event.on((something) => {
+  console.log('did we get something?:', something);
+});
+
+emit(); // prints `did we get something?: undefined`
+
+// the emitter has access to itself via the `emit` key as well
+console.log(emit === emit.emit); // print `true`
+```
+
+#### Sealed Events
+
+The `Event` class has exposed the member function `emit`, which means any bit
+of code that can your event to listen, can also act as an event emitter.
+
+Often you'll find you do not want to trust bits of code with that
+responsibility. To that end this module exposes an alternative type of events
+and API to generate Events called `SealedEvents` that cannot self emit, and
+a separate emitter function
+
+```ts
+import { createEmitter, SealedEvent } from 'ts-typed-events';
+
+const { event, emit } = createEmitter<BigInt>();
+
+event instanceof SealedEvent; // true
+
+event.on((int) => {
+  console.log('Emitted BigInt:', int);
+});
+
+emit(1337n); // prints: 'Emitted BigInt: 1337'
+
+'emit' in event; // === false
+```
+
+**Note**: you can also use `createEventEmitter` if you wish the `event` type to
+be `instanceof Event`. However bear in mind that event has access to the
+emitter. This module exposes both for API uniformity.
 
 ## Other Notes
 
