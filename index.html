@@ -1,0 +1,301 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>ts-typed-events</title>
+	<meta name="description" content="Documentation for ts-typed-events">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">ts-typed-events</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>ts-typed-events</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#ts-typed-events" id="ts-typed-events" style="color: inherit; text-decoration: none;">
+					<h1>ts-typed-events</h1>
+				</a>
+				<p>Zero dependency strongly typed event emitters for <a href="https://www.typescriptlang.org/">TypeScript</a>.</p>
+				<a href="#purpose" id="purpose" style="color: inherit; text-decoration: none;">
+					<h2>Purpose</h2>
+				</a>
+				<p>Using Node&#39;s <a href="https://nodejs.org/api/events.html#events_class_eventemitter">EventEmitter class</a> is nice; it&#39;s a useful software engineering
+					paradigm. However in TypeScript you lose out on TypeScript&#39;s robust type
+					checking when publishing and subscribing to events; or you must write very
+					brittle function overloads for <em>every function</em>: <code>on</code>, <code>off</code>, <code>once</code>, <code>emit</code>,
+				etc. This is annoying and tedious.</p>
+				<p>The aim of this is to leverage TypeScript&#39;s generics to allow for build-time
+					type checking. We also move the events into their own functions, so you don&#39;t
+					have to inherit or mixin any of our classes; just use these single Event
+					emitters. It is also un-opinionated, exposing functional and object oriented
+				building blocks in this library so you can use it best works in your project.</p>
+				<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
+					<h2>Examples</h2>
+				</a>
+				<a href="#simple-usage" id="simple-usage" style="color: inherit; text-decoration: none;">
+					<h3>Simple usage</h3>
+				</a>
+				<p>With classes</p>
+				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Event</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;ts-typed-events&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">event</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Event</span><span style="color: #000000">();</span>
+
+<span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(() </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;The event triggered!&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">emit</span><span style="color: #000000">(); </span><span style="color: #008000">// prints: `The event triggered!`</span>
+</code></pre>
+				<p><em>Or</em> with functions</p>
+				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">createEmitter</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;ts-typed-events&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">emit</span><span style="color: #000000">, </span><span style="color: #0070C1">event</span><span style="color: #000000"> } = </span><span style="color: #795E26">createEmitter</span><span style="color: #000000">();</span>
+
+<span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(() </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;The event triggered!&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #795E26">emit</span><span style="color: #000000">(); </span><span style="color: #008000">// prints: `The event triggered!`</span>
+</code></pre>
+				<a href="#strongly-typed-events" id="strongly-typed-events" style="color: inherit; text-decoration: none;">
+					<h3>Strongly typed events</h3>
+				</a>
+				<pre><code class="language-ts"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">event</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Event</span><span style="color: #000000">&lt;</span><span style="color: #267F99">string</span><span style="color: #000000">&gt;();</span>
+
+<span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">((</span><span style="color: #001080">str</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;hey we got the string:&#039;</span><span style="color: #000000">, </span><span style="color: #001080">str</span><span style="color: #000000">);</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #008000">// this emit function requires an argument of type `string`</span>
+<span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">emit</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;some string&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// prints `hey we got the string: some string`</span>
+</code></pre>
+				<a href="#asyncawait-usage" id="asyncawait-usage" style="color: inherit; text-decoration: none;">
+					<h3>async/await usage</h3>
+				</a>
+				<p>You can register event listeners via traditional callbacks, or if no callback is
+				supplied to <code>event.once()</code>, a Promise is returned that you can <code>await</code>.</p>
+				<pre><code class="language-ts"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">event</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Event</span><span style="color: #000000">&lt;</span><span style="color: #267F99">number</span><span style="color: #000000">&gt;();</span>
+
+<span style="color: #008000">// emit the event in 1 second</span>
+<span style="color: #795E26">setTimeout</span><span style="color: #000000">(() </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">emit</span><span style="color: #000000">(</span><span style="color: #098658">1337</span><span style="color: #000000">), </span><span style="color: #098658">1000</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">emitted</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">();</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;1 sec later we got&#039;</span><span style="color: #000000">, </span><span style="color: #001080">emitted</span><span style="color: #000000">);</span>
+<span style="color: #008000">// printed: `1 sec later we got 1337`</span>
+</code></pre>
+				<p><em>Note</em>: async only works with <code>once</code>, not <code>on</code> as that can trigger multiple
+				times.</p>
+				<a href="#multiple-callbacks" id="multiple-callbacks" style="color: inherit; text-decoration: none;">
+					<h3>Multiple callbacks</h3>
+				</a>
+				<pre><code class="language-ts"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">event</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Event</span><span style="color: #000000">&lt;</span><span style="color: #A31515">&#039;pizza&#039;</span><span style="color: #000000"> | </span><span style="color: #A31515">&#039;ice cream&#039;</span><span style="color: #000000">&gt;();</span>
+
+<span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">((</span><span style="color: #001080">food</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;I like&#039;</span><span style="color: #000000">, </span><span style="color: #001080">food</span><span style="color: #000000">));</span>
+<span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">((</span><span style="color: #001080">badFood</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">badFood</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;is bad for me!&#039;</span><span style="color: #000000">));</span>
+
+<span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">emit</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;pizza&#039;</span><span style="color: #000000">);</span>
+<span style="color: #008000">// printed: `I like pizza`, followed by: `pizza is bad for me!`</span>
+</code></pre>
+				<a href="#removing-callbacks" id="removing-callbacks" style="color: inherit; text-decoration: none;">
+					<h3>Removing callbacks</h3>
+				</a>
+				<pre><code class="language-ts"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">event</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Event</span><span style="color: #000000">();</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">callback</span><span style="color: #000000"> = () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> { </span><span style="color: #AF00DB">throw</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Error</span><span style="color: #000000">(</span><span style="color: #A31515">`I don&#039;t want to be called`</span><span style="color: #000000">); };</span>
+<span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #001080">callback</span><span style="color: #000000">);</span>
+<span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">off</span><span style="color: #000000">(</span><span style="color: #001080">callback</span><span style="color: #000000">);</span>
+
+<span style="color: #008000">// The callback was removed, so the Error in the callback is not thrown</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">emitted</span><span style="color: #000000"> = </span><span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">emit</span><span style="color: #000000">();</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;were any callbacks invoked during the emit?&#039;</span><span style="color: #000000">, </span><span style="color: #001080">emitted</span><span style="color: #000000">);</span>
+<span style="color: #008000">// printed: `were any callbacks invoked during the emit? false`</span>
+</code></pre>
+				<a href="#combining-this-within-classes" id="combining-this-within-classes" style="color: inherit; text-decoration: none;">
+					<h3>Combining this within Classes</h3>
+				</a>
+				<p>As this module intends to replace the &quot;built-in&quot; <a href="https://nodejs.org/api/events.html#events_class_eventemitter">EventEmitter class</a>, you
+					can use it much more freely because it is not a class you <strong>must</strong> inherit like
+					with the <a href="https://nodejs.org/api/events.html#events_class_eventemitter">EventEmitter class</a>. To replicate similar functionality you can make
+				each event a separate member variable of your.</p>
+				<pre><code class="language-ts"><span style="color: #0000FF">class</span><span style="color: #000000"> </span><span style="color: #267F99">Dog</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">private</span><span style="color: #000000"> </span><span style="color: #001080">timesBarked</span><span style="color: #000000"> = </span><span style="color: #098658">0</span><span style="color: #000000">;</span>
+<span style="color: #000000">  </span><span style="color: #008000">// NOTE: the emitter is private here, and the event is public.</span>
+<span style="color: #000000">  </span><span style="color: #008000">// This allows the class to completely control when it emits.</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">private</span><span style="color: #000000"> </span><span style="color: #001080">emitBarked</span><span style="color: #000000"> = </span><span style="color: #795E26">createEmitter</span><span style="color: #000000">();</span>
+
+<span style="color: #000000">  </span><span style="color: #0000FF">public</span><span style="color: #000000"> </span><span style="color: #001080">barked</span><span style="color: #000000"> = </span><span style="color: #0000FF">this</span><span style="color: #000000">.</span><span style="color: #001080">emitBarked</span><span style="color: #000000">.</span><span style="color: #001080">event</span><span style="color: #000000">;</span>
+
+<span style="color: #000000">  </span><span style="color: #0000FF">public</span><span style="color: #000000"> </span><span style="color: #795E26">bark</span><span style="color: #000000">() {</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">this</span><span style="color: #000000">.</span><span style="color: #001080">timesBarked</span><span style="color: #000000"> += </span><span style="color: #098658">1</span><span style="color: #000000">;</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">this</span><span style="color: #000000">.</span><span style="color: #795E26">emitBarked</span><span style="color: #000000">();</span>
+<span style="color: #000000">  }</span>
+<span style="color: #000000">}</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">dog</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Dog</span><span style="color: #000000">();</span>
+<span style="color: #001080">dog</span><span style="color: #000000">.</span><span style="color: #001080">barked</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(() </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;The dog barked!&#039;</span><span style="color: #000000">));</span>
+<span style="color: #001080">dog</span><span style="color: #000000">.</span><span style="color: #795E26">bark</span><span style="color: #000000">(); </span><span style="color: #008000">// prints: `The dog barked!`;</span>
+</code></pre>
+				<a href="#createemitter-alternative-syntax" id="createemitter-alternative-syntax" style="color: inherit; text-decoration: none;">
+					<h3><code>createEmitter</code> alternative Syntax</h3>
+				</a>
+				<p>The method <code>createEmitter</code> returns an emitter function, with the event and
+					itself as properties. This makes the above examples when used with destructuring
+				look clean. However you can choose not to destructure it as well:</p>
+				<pre><code class="language-ts"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">emit</span><span style="color: #000000"> = </span><span style="color: #795E26">createEmitter</span><span style="color: #000000">&lt;</span><span style="color: #A31515">&#039;something&#039;</span><span style="color: #000000"> | </span><span style="color: #267F99">undefined</span><span style="color: #000000">&gt;();</span>
+
+<span style="color: #001080">emit</span><span style="color: #000000">.</span><span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">((</span><span style="color: #001080">something</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;did we get something?:&#039;</span><span style="color: #000000">, </span><span style="color: #001080">something</span><span style="color: #000000">);</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #795E26">emit</span><span style="color: #000000">(); </span><span style="color: #008000">// prints `did we get something?: undefined`</span>
+<span style="color: #001080">emit</span><span style="color: #000000">.</span><span style="color: #795E26">emit</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;something&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// prints `did we get something?: something`</span>
+
+<span style="color: #008000">// the emitter has access to itself via the `emit` key as well</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">emit</span><span style="color: #000000"> === </span><span style="color: #001080">emit</span><span style="color: #000000">.</span><span style="color: #001080">emit</span><span style="color: #000000">); </span><span style="color: #008000">// prints `true`</span>
+</code></pre>
+				<a href="#sealed-events" id="sealed-events" style="color: inherit; text-decoration: none;">
+					<h4>Sealed Events</h4>
+				</a>
+				<p>The <code>Event</code> class has exposed the member function <code>emit</code>, which means any bit
+					of code that can register as a listener on your event, can also force that event
+				to emit.</p>
+				<p>Often you do not want to trust bits of code with that responsibility. For that
+					common use case this module exposes an alternative type of events
+					and API to generate Events called <code>SealedEvents</code> that cannot self emit, and
+				a separate emitter function to handle the emitting logic.</p>
+				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">createEmitter</span><span style="color: #000000">, </span><span style="color: #001080">SealedEvent</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;ts-typed-events&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">event</span><span style="color: #000000">, </span><span style="color: #0070C1">emit</span><span style="color: #000000"> } = </span><span style="color: #795E26">createEmitter</span><span style="color: #000000">&lt;</span><span style="color: #267F99">BigInt</span><span style="color: #000000">&gt;();</span>
+
+<span style="color: #001080">event</span><span style="color: #000000"> </span><span style="color: #0000FF">instanceof</span><span style="color: #000000"> </span><span style="color: #267F99">SealedEvent</span><span style="color: #000000">; </span><span style="color: #008000">// true</span>
+<span style="color: #A31515">&#039;emit&#039;</span><span style="color: #000000"> </span><span style="color: #0000FF">in</span><span style="color: #000000"> </span><span style="color: #001080">event</span><span style="color: #000000">; </span><span style="color: #008000">// === false</span>
+
+<span style="color: #001080">event</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">((</span><span style="color: #001080">int</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Emitted BigInt:&#039;</span><span style="color: #000000">, </span><span style="color: #001080">int</span><span style="color: #000000">);</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #795E26">emit</span><span style="color: #000000">(</span><span style="color: #098658">1337</span><span style="color: #0000FF">n</span><span style="color: #000000">); </span><span style="color: #008000">// prints: &#039;Emitted BigInt: 1337&#039;</span>
+</code></pre>
+				<p><strong>Note</strong>: you can also use <code>createEventEmitter</code> if you wish the <code>event</code> type to
+					be <code>instanceof Event</code>. Keep in mind that regular <code>Event</code> instances have access
+					to their emitter via <code>.emit</code>. This module exposes both variants for API
+				uniformity.</p>
+				<a href="#other-notes" id="other-notes" style="color: inherit; text-decoration: none;">
+					<h2>Other Notes</h2>
+				</a>
+				<p>This library leverages TypeScript&#39;s interfaces and generics very heavily to do
+					type checking at every point. If you plan to use this with regular JavaScript
+					most of this library&#39;s features are lost to you. However do not let that deter
+				you from trying this, or <a href="https://www.typescriptlang.org/">TypeScript</a>!</p>
+				<a href="#docs" id="docs" style="color: inherit; text-decoration: none;">
+					<h2>Docs</h2>
+				</a>
+				<p>All the functions are documented using jsdoc style comments, so your
+				favorite IDE should pick up the documentation cleanly.</p>
+				<p>However, if you prefer external docs, they are available online here:
+				<a href="https://jacobfischer.github.io/ts-typed-events/">https://jacobfischer.github.io/ts-typed-events/</a></p>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/baseevent.html" class="tsd-kind-icon">Base<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/event.html" class="tsd-kind-icon">Event</a>
+					</li>
+					<li class=" tsd-kind-class tsd-has-type-parameter">
+						<a href="classes/sealedevent.html" class="tsd-kind-icon">Sealed<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="modules.html#emitter" class="tsd-kind-icon">Emitter</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="modules.html#createemitter" class="tsd-kind-icon">create<wbr>Emitter</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="modules.html#createeventemitter" class="tsd-kind-icon">create<wbr>Event<wbr>Emitter</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
