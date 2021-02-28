@@ -46,7 +46,7 @@
     "clean": "npm run clean:dist && npm run clean:docs",
     "clean:docs": "shx rm -rf docs/",
     "clean:dist": "shx rm -rf dist/",
-    "docs": "typedoc --out docs/ --exclude test/* --entryPoints src/index.ts",
+    "docs": "typedoc --out docs/ --exclude \"(dist|test)/*\" --entryPoints src/index.ts",
     "docs:predeploy": "shx touch docs/.nojekyll",
     "lint": "eslint ./ --max-warnings=0",
     "prettier:base": "prettier **/*.{js,jsx,ts,tsx}",

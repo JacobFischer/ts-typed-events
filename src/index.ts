@@ -28,9 +28,8 @@ type HasUndefined<T, C = [T extends undefined ? true : false]> = C extends [
   ? false
   : true;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 /** An emitter function for a ts-typed-events Event. */
-export type Emitter<T = undefined> = HasUndefined<T> extends true
+type BaseEmitterFunc<T = undefined> = HasUndefined<T> extends true
   ? Exclude<T, undefined> extends never
     ? () => boolean
     : (emitting?: T) => boolean
@@ -153,20 +152,26 @@ export abstract class BaseEvent<T = undefined> {
 /**
  * A ts-typed-events event to register callbacks on to be invoked when they are
  * emitted.
+ *
+ * This Event class signifies the event is "sealed" from the outside and cannot
+ * be emitted through itself. The emitter function is separated.
  */
 export class SealedEvent<T = undefined> extends BaseEvent<T> {
   // functionally identical to BaseEvent, just a different name to better
   // signify its difference from the old `Event`.
 }
+/** An emitter function with itself and its event as properties keyed on it. */
+export type Emitter<T, TEvent extends BaseEvent<T>> = BaseEmitterFunc<T> & {
+  /** The Event this emitter emits to. */
+  readonly event: TEvent;
+  /** A cyclical reference to the same emitter function. */
+  readonly emit: Emitter<T, TEvent>;
+};
 
-/**
- * Creates an emitter for an Event.
- *
- * @internal
- * @param event - The event to create an emitter for.
- * @returns A new emitter function for the given event.
- */
-function createEmitterFor<T>(event: BaseEvent<T>): Emitter<T> {
+/** @internal */
+function createEmitterWithBaseEvent<T, TEvent extends BaseEvent<T>>(
+  event: TEvent,
+): Emitter<T, TEvent> {
   // Hack-y, we are reaching into to grab the listeners
   // realistically, this would be a friend style function
   const publicListenersEvent = (event as unknown) as {
@@ -190,32 +195,16 @@ function createEmitterFor<T>(event: BaseEvent<T>): Emitter<T> {
     return hadListeners;
   }
 
-  return emit as Emitter<T>;
-}
-
-/** An emitter function with itself and its event as properties keyed on it. */
-export type EventEmitter<T, TEvent extends BaseEvent<T>> = Emitter<T> & {
-  /** The Event this emitter emits to. */
-  event: TEvent;
-  /** A cyclical reference to the same emitter function. */
-  emit: Emitter<T>;
-} & [TEvent, Emitter<T>];
-
-/** @internal */
-function createEmitterWithBaseEvent<T, TEvent extends BaseEvent<T>>(
-  event: TEvent,
-): EventEmitter<T, TEvent> {
-  const emit = createEmitterFor(event);
-
   // Hack: Need to find a better way to convince TS this function will have
-  // the correct keys on these complex functions.
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-  const func: EventEmitter<T, TEvent> = emit as any;
-
+  // the correct keys on these circular functions.
+  /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access */
+  const func = emit as any;
   func.event = event;
   func.emit = emit;
+  const emitter = func as Emitter<T, TEvent>;
+  /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access */
 
-  return func;
+  return emitter;
 }
 
 /**
@@ -223,10 +212,7 @@ function createEmitterWithBaseEvent<T, TEvent extends BaseEvent<T>>(
  *
  * @returns A tuple of the [event, emit] both keyed as an array and object.
  */
-export function createEmitter<T = undefined>(): EventEmitter<
-  T,
-  SealedEvent<T>
-> {
+export function createEmitter<T = undefined>(): Emitter<T, SealedEvent<T>> {
   // This is a hack-y way to create a new class instance that doesn't want you
   // to.
   const EventClass = (SealedEvent as unknown) as {
@@ -270,9 +256,6 @@ export class Event<T = undefined> extends BaseEvent<T> {
  *
  * @returns A tuple of the [event, emit] both keyed as an array and object.
  */
-export function createEventEmitter<T = undefined>(): EventEmitter<
-  T,
-  Event<T>
-> {
+export function createEventEmitter<T = undefined>(): Emitter<T, Event<T>> {
   return createEmitterWithBaseEvent(new Event());
 }

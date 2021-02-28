@@ -138,7 +138,7 @@ dog.barked.on(() => console.log('The dog barked!'));
 dog.bark(); // prints: `The dog barked!`;
 ```
 
-### Alternative Syntax
+### `createEmitter` Alternative Syntax
 
 The method, `createEmitter`, returns the emitter function, with
 the event and itself as properties. This makes the above examples when used
@@ -174,14 +174,13 @@ import { createEmitter, SealedEvent } from 'ts-typed-events';
 const { event, emit } = createEmitter<BigInt>();
 
 event instanceof SealedEvent; // true
+'emit' in event; // === false
 
 event.on((int) => {
   console.log('Emitted BigInt:', int);
 });
 
 emit(1337n); // prints: 'Emitted BigInt: 1337'
-
-'emit' in event; // === false
 ```
 
 **Note**: you can also use `createEventEmitter` if you wish the `event` type to
