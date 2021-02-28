@@ -10,9 +10,9 @@ checking when publishing and subscribing to events; or you must write very
 brittle function overloads for _every function_: `on`, `off`, `once`, `emit`,
 etc. This is annoying and tedious.
 
-The aim of this is to leverage TypeScript's generics to allow for compile-time
+The aim of this is to leverage TypeScript's generics to allow for build-time
 type checking. We also move the events into their own functions, so you don't
-have to inherit or mixin any of our classes, just use these single Event
+have to inherit or mixin any of our classes; just use these single Event
 emitters. It is also un-opinionated, exposing functional and object oriented
 building blocks in this library so you can use it best works in your project.
 
@@ -89,7 +89,7 @@ event.on((food) => console.log('I like', food));
 event.on((badFood) => console.log(badFood, 'is bad for me!'));
 
 event.emit('pizza');
-// printed: `I like pizza` followed by `pizza is bad for me!`
+// printed: `I like pizza`, followed by: `pizza is bad for me!`
 ```
 
 ### Removing callbacks
@@ -136,10 +136,9 @@ dog.bark(); // prints: `The dog barked!`;
 
 ### `createEmitter` alternative Syntax
 
-The method, `createEmitter`, returns the emitter function, with
-the event and itself as properties. This makes the above examples when used
-with destructuring look clean. However you can choose not to destructure it
-as well:
+The method `createEmitter` returns an emitter function, with the event and
+itself as properties. This makes the above examples when used with destructuring
+look clean. However you can choose not to destructure it as well:
 
 ```ts
 const emit = createEmitter<'something' | undefined>();
@@ -158,12 +157,13 @@ console.log(emit === emit.emit); // prints `true`
 #### Sealed Events
 
 The `Event` class has exposed the member function `emit`, which means any bit
-of code that can your event to listen, can also act as an event emitter.
+of code that can register as a listener on your event, can also force that event
+to emit.
 
-Often you'll find you do not want to trust bits of code with that
-responsibility. To that end this module exposes an alternative type of events
+Often you do not want to trust bits of code with that responsibility. For that
+common use case this module exposes an alternative type of events
 and API to generate Events called `SealedEvents` that cannot self emit, and
-a separate emitter function
+a separate emitter function to handle the emitting logic.
 
 ```ts
 import { createEmitter, SealedEvent } from 'ts-typed-events';
@@ -181,8 +181,9 @@ emit(1337n); // prints: 'Emitted BigInt: 1337'
 ```
 
 **Note**: you can also use `createEventEmitter` if you wish the `event` type to
-be `instanceof Event`. However bear in mind that event has access to the
-emitter. This module exposes both for API uniformity.
+be `instanceof Event`. Keep in mind that regular `Event` instances have access
+to their emitter via `.emit`. This module exposes both variants for API
+uniformity.
 
 ## Other Notes
 
