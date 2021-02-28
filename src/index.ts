@@ -160,6 +160,7 @@ export class SealedEvent<T = undefined> extends BaseEvent<T> {
   // functionally identical to BaseEvent, just a different name to better
   // signify its difference from the old `Event`.
 }
+
 /** An emitter function with itself and its event as properties keyed on it. */
 export type Emitter<T, TEvent extends BaseEvent<T>> = BaseEmitterFunc<T> & {
   /** The Event this emitter emits to. */
@@ -208,9 +209,10 @@ function createEmitterWithBaseEvent<T, TEvent extends BaseEvent<T>>(
 }
 
 /**
- * Creates and returns a new Event and the emitter for that Event.
+ * Creates and returns an emitter for a SealedEvent, with the event keyed off
+ * the emitter via `.event`.
  *
- * @returns A tuple of the [event, emit] both keyed as an array and object.
+ * @returns An emitter function that will emit to the `.event` SealedEvent.
  */
 export function createEmitter<T = undefined>(): Emitter<T, SealedEvent<T>> {
   // This is a hack-y way to create a new class instance that doesn't want you
@@ -238,7 +240,7 @@ export class Event<T = undefined> extends BaseEvent<T> {
    * be omitted.
    * @returns True if the event had listeners emitted to, false otherwise.
    */
-  public emit = createEmitterFor(this);
+  public emit = createEmitterWithBaseEvent<T, Event<T>>(this);
 
   /**
    * Creates a new Event, with its emit accessible as a member function.
@@ -249,12 +251,12 @@ export class Event<T = undefined> extends BaseEvent<T> {
 }
 
 /**
- * A tuple of both [event, emit] and {event, emit},
- * for you to consume however you desire.
- * The emitter can be considered optional, as the Event returned can self
- * emit. However this is exposed for API parody with the SealedEvent version.
+ * Creates and returns an emitter for an Event, with the event keyed off
+ * the emitter via `.event`.
+ * **Note**: The `event` here is will have a member function `.emit` that emits
+ * to the same function as the emitter returned here.
  *
- * @returns A tuple of the [event, emit] both keyed as an array and object.
+ * @returns An emitter function that will emit to the `.event` Event.
  */
 export function createEventEmitter<T = undefined>(): Emitter<T, Event<T>> {
   return createEmitterWithBaseEvent(new Event());

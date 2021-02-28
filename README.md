@@ -1,11 +1,6 @@
 # ts-typed-events
 
-Strongly typed event emitters for [TypeScript].
-
-This is a TypeScript project, although the built code is available in the
-package without any runtime dependencies, it is solely designed around the
-purpose of making events easier to work with _in TypeScript_ via the included
-definitions.
+Zero dependency strongly typed event emitters for [TypeScript].
 
 ## Purpose
 
@@ -39,7 +34,7 @@ event.on(() => {
 event.emit(); // prints: `The event triggered!`
 ```
 
-_or_ with functions
+_Or_ with functions
 
 ```ts
 import { createEmitter } from 'ts-typed-events';
@@ -62,13 +57,14 @@ event.on((str) => {
   console.log('hey we got the string:', str);
 });
 
+// this emit function requires an argument of type `string`
 event.emit('some string'); // prints `hey we got the string: some string`
 ```
 
 ### async/await usage
 
 You can register event listeners via traditional callbacks, or if no callback is
-supplied to `event.once()`, a Promise is returns you can `await`.
+supplied to `event.once()`, a Promise is returned that you can `await`.
 
 ```ts
 const event = new Event<number>();
@@ -138,7 +134,7 @@ dog.barked.on(() => console.log('The dog barked!'));
 dog.bark(); // prints: `The dog barked!`;
 ```
 
-### `createEmitter` Alternative Syntax
+### `createEmitter` alternative Syntax
 
 The method, `createEmitter`, returns the emitter function, with
 the event and itself as properties. This makes the above examples when used
@@ -153,9 +149,10 @@ emit.event.on((something) => {
 });
 
 emit(); // prints `did we get something?: undefined`
+emit.emit('something'); // prints `did we get something?: something`
 
 // the emitter has access to itself via the `emit` key as well
-console.log(emit === emit.emit); // print `true`
+console.log(emit === emit.emit); // prints `true`
 ```
 
 #### Sealed Events

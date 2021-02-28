@@ -4,9 +4,7 @@ All notable changed to this project will be documented in this file.
 The format is based on [Keep a Changelog]
 and this project adheres to [Semantic Versioning].
 
-## [3.0.0] - 2021-??-??
-
-**NOTE**: this is a pre-release changelog, and may differ by the final release
+## [3.0.0] - 2021-02-28
 
 ### Changed
 - `Event` now inherits from the new `BaseEvent` class.
@@ -16,17 +14,22 @@ and this project adheres to [Semantic Versioning].
   - See [#8] for discussion and alternates when upgrading.
 
 ### Added
-- `createEmitter()` function added that returns an emitter function separate from the `Event`.
-- `SealedEvent` added as an `Event` that lacks an `.emit()` function.
-  - For these events use the emitter returned to emit them.
+- `createEmitter()` function added that returns an emitter function separate
+  from the `Event`.
+- `SealedEvent` added as an a type of event that lacks an `.emit()` function.
+  - For `SealedEvent`s, use the emitter returned to emit them.
   - See the README for updated examples on usage.
-- `BaseEvent` added as a base class for `Event` and `SealedEvent` to inherit from.
+- `BaseEvent` added as a base class for `Event` and `SealedEvent` to inherit
+  from.
 - `createEventEmitter()` function added.
-  - function signature is identical to `creteEmitter()`, but returns a normal `Event` instead of a `SealedEvent`.S
+  - function signature is identical to `creteEmitter()`, but returns a normal
+    `Event` instead of a `SealedEvent`.
 
 ### Fixed
 - Circular imports are no longer encountered during module loading [#12].
 - The `any` type should be correctly handled for emitter functions [#13].
+  - Now any generic type `T` that extends `undefined` makes the `emit(arg: T)`
+    argument `arg` optional.
 
 ## [2.0.1] - 2021-01-24
 ### Changed

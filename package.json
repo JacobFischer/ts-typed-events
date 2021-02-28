@@ -1,12 +1,12 @@
 {
   "name": "ts-typed-events",
-  "version": "3.0.0-rc.5",
+  "version": "3.0.0",
   "author": {
     "name": "Jacob Fischer",
     "email": "jacob.t.fischer@gmail.com",
     "url": "https://github.com/JacobFischer"
   },
-  "description": "Strongly typed event emitters for TypeScript",
+  "description": "Zero dependency strongly typed event emitters for TypeScript",
   "homepage": "https://jacobfischer.github.io/ts-typed-events/",
   "license": "MIT",
   "repository": {
