@@ -3,15 +3,12 @@ language: nodejs
 script:
   - npm run prettier:check
   - npm run lint
+  - npm run docs
   - npm run build
   - npm run test
 
-after_success:
-  - npm run docs
-  - npm pack
-
-
 before_deploy:
+  - npm pack
   - npm run docs:predeploy
 
 
@@ -35,6 +32,6 @@ deploy:
     skip_cleanup: true
     email: "jacob.t.fischer@gmail.com"
     api_key: $NPM_TOKEN
-    tag: next
+    # tag: next
     on:
       tags: true
